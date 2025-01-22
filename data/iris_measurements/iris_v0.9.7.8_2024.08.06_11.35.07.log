@@ -1,0 +1,66 @@
+--- Iris version 0.9.7.8 log file	build 5121c26 ---
+-- Started processing files at Tue Aug 06 23:35:07 AST 2024 --
+-- Loaded user settings: -- 
+
+{
+  "SingleColony": false,
+  "DebugMode": false,
+  "profileSettings": [
+    null
+  ],
+  "ArrayFormat": 1536
+}
+
+-----------------------------------------
+
+
+
+Colony growth: unable to process picture Colistin-8 ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Colistin-8ugml-1-1_C.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Colistin-8ugml-1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture EDTA-0.5mM-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture EDTA-0.5mM-1-1_C.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture EDTA-1mM-1-1_C.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Imipenem-1 ugml-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 224
+
+Colony growth: unable to process picture RPMI-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture RPMI-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 210
+
+Colony growth: unable to process picture RPMI-1-1_D.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture RPMI-1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+
+-----------------------------------------
+-- Done processing all files at Tue Aug 06 23:39:52 AST 2024 --

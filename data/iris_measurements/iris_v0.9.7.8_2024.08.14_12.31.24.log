@@ -1,0 +1,131 @@
+--- Iris version 0.9.7.8 log file	build 5121c26 ---
+-- Started processing files at Wed Aug 14 12:31:24 AST 2024 --
+-- Loaded user settings: -- 
+
+{
+  "SingleColony": false,
+  "DebugMode": false,
+  "profileSettings": [
+    {
+      "ProfileName": "Colony growth",
+      "rotationSettings": {
+        "autoRotateImage": false,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 605,
+        "FixedCropping_Y_Start": 330,
+        "FixedCropping_X_End": 4190,
+        "FixedCropping_Y_End": 2830
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": true,
+        "ColonyBreathingSpace": 15
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.3
+      }
+    }
+  ],
+  "ArrayFormat": 1536
+}
+
+-----------------------------------------
+
+
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-0,2ugml-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-0,2ugml-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-0,2ugml-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-1ugml-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-1ugml-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-1ugml-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-1ugml-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-2ugml-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-2ugml-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-2ugml-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-2ugml-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,05ugml-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,05ugml-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,05ugml-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,05ugml-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,05ugml-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,25ugml-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,25ugml-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,25ugml-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,25ugml-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,25ugml-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,5ugml-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,5ugml-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ciprofloxacin-0,5ugml-1-1_D.JPG
+Clipboard:	too big distance encountered: 210
+
+Colony growth: unable to process picture Methanol-5%-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Methanol-5%-1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture UV-24sec1-1_C.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture UV-24sec1-1_D.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture UV-24sec1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-12sec1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-12sec1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-12sec1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-12sec1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-12sec1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-24sec1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-24sec1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-24sec1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-24sec1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-24sec1-1_E.JPG
+Clipboard:	too big distance encountered: 208
+
+Colony growth: unable to process picture Ciprofloxacin-0,5ugml-1-1_C.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 213
+
+Colony growth: unable to process picture Ciprofloxacin-0,05ugml-1-1_D.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 203
+
+Colony growth: unable to process picture Ciprofloxacin-0,25ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._LB-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._LB-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._LB-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._LB-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._LB-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Methanol-5%-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Methanol-5%-1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Methanol-5%-1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Methanol-5%-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Methanol-5%-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-6sec1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-6sec1-1_B.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-6sec1-1_C.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-6sec1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._UV-6sec1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-0,2ugml-1-1_A.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-0,2ugml-1-1_E.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-1ugml-1-1_D.JPG
+Could not open image file: /Volumes/NO NAME/14-08-2024-kp-wejran-conditions/._Ceftazidime-2ugml-1-1_C.JPG
+
+
+-----------------------------------------
+-- Done processing all files at Wed Aug 14 12:36:29 AST 2024 --

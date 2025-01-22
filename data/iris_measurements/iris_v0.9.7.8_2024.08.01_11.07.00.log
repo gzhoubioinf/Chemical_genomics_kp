@@ -1,0 +1,51 @@
+--- Iris version 0.9.7.8 log file	build 5121c26 ---
+-- Started processing files at Thu Aug 01 11:07:00 AST 2024 --
+-- Loaded user settings: -- 
+
+{
+  "SingleColony": false,
+  "DebugMode": false,
+  "profileSettings": [
+    null
+  ],
+  "ArrayFormat": 1536
+}
+
+-----------------------------------------
+
+
+
+Colony growth: unable to process picture LBBlood-5%-1-1_D.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 207
+
+Colony growth: unable to process picture Gentamycin-0,8ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Imipenem-0.1ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture pH-9-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Colistin-0.8ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 211
+
+Colony growth: unable to process picture pH-8-1-1_D.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 226
+
+Colony growth: unable to process picture pH-8-1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+
+-----------------------------------------
+-- Done processing all files at Thu Aug 01 11:11:36 AST 2024 --

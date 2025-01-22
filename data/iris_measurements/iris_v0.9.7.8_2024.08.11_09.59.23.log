@@ -1,0 +1,77 @@
+--- Iris version 0.9.7.8 log file	build 5121c26 ---
+-- Started processing files at Sun Aug 11 09:59:23 AST 2024 --
+-- Loaded user settings: -- 
+
+{
+  "SingleColony": false,
+  "DebugMode": false,
+  "profileSettings": [
+    {
+      "ProfileName": "Colony growth",
+      "rotationSettings": {
+        "autoRotateImage": false,
+        "manualImageRotationDegrees": 0.0
+      },
+      "croppingSettings": {
+        "UserCroppedImage": false,
+        "UseFixedCropping": false,
+        "FixedCropping_X_Start": 605,
+        "FixedCropping_Y_Start": 330,
+        "FixedCropping_X_End": 4190,
+        "FixedCropping_Y_End": 2830
+      },
+      "segmentationSettings": {
+        "ColonyBreathing": true,
+        "ColonyBreathingSpace": 15
+      },
+      "detectionSettings": {
+        "MinimumValidColonySize": 50,
+        "MinimumValidColonyCircularity": 0.3
+      }
+    }
+  ],
+  "ArrayFormat": 1536
+}
+
+-----------------------------------------
+
+
+Clipboard:	too big distance encountered: 206
+
+Colony growth: unable to process picture Methanol-1%-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Chloramphenicol-8ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Chloramphenicol-16ugml-1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Chloramphenicol-8ugml-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 328
+
+Colony growth: unable to process picture Chloramphenicol-16ugml-1-1_B.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+Clipboard:	too big distance encountered: 218
+
+Colony growth: unable to process picture Chloramphenicol-16ugml-1-1_C.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Chloramphenicol-16ugml-1-1_A.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+Colony growth: unable to process picture Chloramphenicol-8ugml-1-1_E.JPG
+Image segmentation algorithm failed:
+	too many empty rows/columns
+
+
+-----------------------------------------
+-- Done processing all files at Sun Aug 11 10:02:33 AST 2024 --
