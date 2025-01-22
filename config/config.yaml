@@ -1,0 +1,25 @@
+project_file: "/ibex/user/hinkovn/Chem_Genomics_Kp"
+
+pca_model_file: "${project_file}/Models/pca_500_fitted_model_xg.joblib"
+unitig_to_index_file: "${project_file}/Models/unitig_to_index_xg.pkl"
+
+MODEL_PATHS:
+  Colistin_0.8ugml:
+    opacity: "${project_file}/Models/pca_500_opacity_Colistin_0.8ugml"
+    circularity: "${project_file}/Models/pca_500_circularity_Colistin_0.8ugml"
+    size: "${project_file}/Models/pca_500_size_Colistin_0.8ugml"
+
+files:
+  strain_file: "${project_file}/data/starain_names.csv"
+  circularity_data: "${project_file}/data/dependent_median_circularity_ML.csv"
+  size_data: "${project_file}/data/dependent_median_size_ML.csv"
+  opacity_data: "${project_file}/data/dependent_median_opacity_ML.csv"
+  amr_data: "${project_file}/data/combined_amr_kleborate_ast_with_14thAug_iris.tsv"
+  gene_antibiotics: "${project_file}/data/resist_genes.json"
+  reference_gbff: "${project_file}/data/reference.gbk.gb"
+  all_fsa: "${project_file}/data/resistance_genes_seq.fsa"
+  vfdb_fas: "${project_file}/data/virulence_genes_seq.fas"
+
+directories:
+  image_directory: "${project_file}/data/plate_images/"
+  iris_directory: "${project_file}/data/iris_measurements"
