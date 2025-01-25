@@ -1,0 +1,512 @@
+/ibex/user/hinkovn/Project_File
+├── app
+│   ├── colony_picker.py
+│   ├── __init__.py
+│   ├── main.py
+│   ├── ml_prediction.py
+│   └── utils
+│       ├── data_loading.py
+│       ├── gbff_processing.py
+│       ├── image_handling.py
+│       ├── __init__.py
+│       └── ml_models.py
+├── cli
+│   ├── amr_genomics_cli.py
+│   ├── condition_names.txt
+│   └── strain_names.txt
+├── config
+│   └── config.yaml
+├── data
+│   ├── combined_amr_kleborate_ast_with_14thAug_iris.tsv
+│   ├── dependent_median_circularity_ML.csv
+│   ├── dependent_median_ML.csv
+│   ├── dependent_median_opacity_ML.csv
+│   ├── dependent_median_size_ML.csv
+│   ├── iris_measurements
+│   │   ├── ACETICACID-0,7mM-1-1_A.JPG.iris
+│   │   ├── ACETICACID-0,7mM-1-1_B.JPG.iris
+│   │   ├── ACETICACID-0,7mM-1-1_C.JPG.iris
+│   │   ├── ACETICACID-0.7mM-1-1_C.JPG.iris
+│   │   ├── ACETICACID-0,7mM-1-1_E.JPG.iris
+│   │   ├── ACETICACID-1mM-1-1_A.JPG.iris
+│   │   ├── ACETICACID-1mM-1-1_B.JPG.iris
+│   │   ├── ACETICACID-1mM-1-1_D.JPG.iris
+│   │   ├── ACETICACID-1mM-1-1_E.JPG.iris
+│   │   ├── ACETICACID-5mM-1-1_A.JPG.iris
+│   │   ├── ACETICACID-5mM-1-1_B.JPG.iris
+│   │   ├── ACETICACID-5mM-1-1_C.JPG.iris
+│   │   ├── ACETICACID-5mM-1-1_D.JPG.iris
+│   │   ├── ACETICACID-5mM-1-1_E.JPG.iris
+│   │   ├── BLEACH-1%-1-1_A.JPG.iris
+│   │   ├── BLEACH-1%-1-1_B.JPG.iris
+│   │   ├── BLEACH-1%-1-1_C.JPG.iris
+│   │   ├── BLEACH-1%-1-1_D.JPG.iris
+│   │   ├── BLEACH-1%-1-1_E.JPG.iris
+│   │   ├── Ceftazidime-0,2ugml-1-1_A.JPG.iris
+│   │   ├── Ceftazidime-0,2ugml-1-1_B.JPG.iris
+│   │   ├── Ceftazidime-0,2ugml-1-1_C.JPG.iris
+│   │   ├── Ceftazidime-0,2ugml-1-1_D.JPG.iris
+│   │   ├── Ceftazidime-0,2ugml-1-1_E.JPG.iris
+│   │   ├── Ceftazidime-1ugml-1-1_A.JPG.iris
+│   │   ├── Ceftazidime-1ugml-1-1_B.JPG.iris
+│   │   ├── Ceftazidime-1ugml-1-1_C.JPG.iris
+│   │   ├── Ceftazidime-1ugml-1-1_D.JPG.iris
+│   │   ├── Ceftazidime-1ugml-1-1_E.JPG.iris
+│   │   ├── Ceftazidime-2ugml-1-1_A.JPG.iris
+│   │   ├── Ceftazidime-2ugml-1-1_B.JPG.iris
+│   │   ├── Ceftazidime-2ugml-1-1_C.JPG.iris
+│   │   ├── Ceftazidime-2ugml-1-1_D.JPG.iris
+│   │   ├── Ceftazidime-2ugml-1-1_E.JPG.iris
+│   │   ├── Chloramphenicol-1,6ugml-1-1_A.JPG.iris
+│   │   ├── Chloramphenicol-1,6ugml-1-1_B.JPG.iris
+│   │   ├── Chloramphenicol-1,6ugml-1-1_C.JPG.iris
+│   │   ├── Chloramphenicol-1,6ugml-1-1_D.JPG.iris
+│   │   ├── Chloramphenicol-1,6ugml-1-1_E.JPG.iris
+│   │   ├── Chloramphenicol-8ugml-1-1_C.JPG.iris
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_A.JPG.iris
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_B.JPG.iris
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_C.JPG.iris
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_E.JPG.iris
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_B.JPG.iris
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_C.JPG.iris
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_D.JPG.iris
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_E.JPG.iris
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_A.JPG.iris
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_B.JPG.iris
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_D.JPG.iris
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_E.JPG.iris
+│   │   ├── Colisitin-8ugml-1-1_A.JPG.iris
+│   │   ├── Colisitin-8ugml-1-1_B.JPG.iris
+│   │   ├── Colisitin-8ugml-1-1_C.JPG.iris
+│   │   ├── Colisitin-8ugml-1-1_D.JPG.iris
+│   │   ├── Colisitin-8ugml-1-1_E.JPG.iris
+│   │   ├── Colistin-0.8ugml-1-1_B.JPG.iris
+│   │   ├── Colistin-0.8ugml-1-1_C.JPG.iris
+│   │   ├── Colistin-0.8ugml-1-1_D.JPG.iris
+│   │   ├── Colistin-0.8ugml-1-1_E.JPG.iris
+│   │   ├── Colistin-4ugml-1-1_A.JPG.iris
+│   │   ├── Colistin-4ugml-1-1_B.JPG.iris
+│   │   ├── Colistin-4ugml-1-1_C.JPG.iris
+│   │   ├── Colistin-4ugml-1-1_D.JPG.iris
+│   │   ├── Colistin-8ugml-1-1_B.JPG.iris
+│   │   ├── Colistin-8ugml-1-1_D.JPG.iris
+│   │   ├── DMSO-1%-1-1_A.JPG.iris
+│   │   ├── DMSO-1%-1-1_B.JPG.iris
+│   │   ├── DMSO-1%-1-1_C.JPG.grid copy.jpg
+│   │   ├── DMSO-1%-1-1_C.JPG.iris
+│   │   ├── DMSO-1%-1-1_E.JPG.iris
+│   │   ├── EDTA-0.1mM-1-1_A.JPG.iris
+│   │   ├── EDTA-0.1mM-1-1_B.JPG.iris
+│   │   ├── EDTA-0.1mM-1-1_C.JPG.iris
+│   │   ├── EDTA-0.1mM-1-1_D.JPG.iris
+│   │   ├── EDTA-0.1mM-1-1_E.JPG.iris
+│   │   ├── EDTA-0.5mM-1-1_A.JPG.iris
+│   │   ├── EDTA-0.5mM-1-1_D.JPG.iris
+│   │   ├── EDTA-0.5mM-1-1_E.JPG.iris
+│   │   ├── EDTA-1mM-1-1_A.JPG.iris
+│   │   ├── EDTA-1mM-1-1_B.JPG.iris
+│   │   ├── EDTA-1mM-1-1_D.JPG.iris
+│   │   ├── EDTA-1mM-1-1_E.JPG.iris
+│   │   ├── ETHANOL-1%-1-1_A.JPG.iris
+│   │   ├── ETHANOL-1%-1-1_B.JPG.iris
+│   │   ├── ETHANOL-1%-1-1_C.JPG.iris
+│   │   ├── ETHANOL-1%-1-1_D.JPG.iris
+│   │   ├── ETHANOL-1%-1-1_E.JPG.iris
+│   │   ├── ethanol-5%-1-1_A.JPG.iris
+│   │   ├── ethanol-5%-1-1_B.JPG.iris
+│   │   ├── ethanol-5%-1-1_C.JPG.iris
+│   │   ├── ethanol-5%-1-1_D.JPG.iris
+│   │   ├── ethanol-5%-1-1_E.JPG.iris
+│   │   ├── Gentamycin-0,8ugml-1-1_B.JPG.iris
+│   │   ├── Gentamycin-0,8ugml-1-1_C.JPG.iris
+│   │   ├── Gentamycin-0,8ugml-1-1_D.JPG.iris
+│   │   ├── Gentamycin-0,8ugml-1-1_E.JPG.iris
+│   │   ├── Gentamycin-4ugml-1-1_A.JPG.iris
+│   │   ├── Gentamycin-4ugml-1-1_B.JPG.iris
+│   │   ├── Gentamycin-4ugml-1-1_C.JPG.iris
+│   │   ├── Gentamycin-4ugml-1-1_D.JPG.iris
+│   │   ├── Gentamycin-4ugml-1-1_E.JPG.iris
+│   │   ├── Gentamycin-8ugml-1-1_A.JPG.iris
+│   │   ├── Gentamycin-8ugml-1-1_B.JPG.iris
+│   │   ├── Gentamycin-8ugml-1-1_C.JPG.iris
+│   │   ├── Gentamycin-8ugml-1-1_D.JPG.iris
+│   │   ├── Gentamycin-8ugml-1-1_E.JPG.iris
+│   │   ├── Imipenem-0.1ugml-1-1_B.JPG.iris
+│   │   ├── Imipenem-0.1ugml-1-1_C.JPG.iris
+│   │   ├── Imipenem-0.1ugml-1-1_D.JPG.iris
+│   │   ├── Imipenem-0.1ugml-1-1_E.JPG.iris
+│   │   ├── Imipenem-0.5 ugml-1-1_A.JPG.iris
+│   │   ├── Imipenem-0.5 ugml-1-1_B.JPG.iris
+│   │   ├── Imipenem-0.5 ugml-1-1_C.JPG.iris
+│   │   ├── Imipenem-0.5 ugml-1-1_D.JPG.iris
+│   │   ├── Imipenem-0.5 ugml-1-1_E.JPG.iris
+│   │   ├── Imipenem-1 ugml-1-1_A.JPG.iris
+│   │   ├── Imipenem-1 ugml-1-1_C.JPG.iris
+│   │   ├── Imipenem-1 ugml-1-1_D.JPG.iris
+│   │   ├── Imipenem-1 ugml-1-1_E.JPG.iris
+│   │   ├── Indole-1mM-1-1_A.JPG.iris
+│   │   ├── Indole-1mM-1-1_B.JPG.iris
+│   │   ├── Indole-1mM-1-1_C.JPG.iris
+│   │   ├── Indole-1mM-1-1_D.JPG.iris
+│   │   ├── Indole-1mM-1-1_E.JPG.iris
+│   │   ├── iris_v0.9.7.8_2024.08.01_11.07.00.log
+│   │   ├── iris_v0.9.7.8_2024.08.06_11.35.07.log
+│   │   ├── iris_v0.9.7.8_2024.08.11_09.59.23.log
+│   │   ├── iris_v0.9.7.8_2024.08.11_10.07.48.log
+│   │   ├── iris_v0.9.7.8_2024.08.14_12.31.24.log
+│   │   ├── LB--1-1_A.JPG.iris
+│   │   ├── LB-1-1_A.JPG.iris
+│   │   ├── LB--1-1_B.JPG.iris
+│   │   ├── LB-1-1_B.JPG.iris
+│   │   ├── LB--1-1_C.JPG.iris
+│   │   ├── LB-1-1_C.JPG.iris
+│   │   ├── LB--1-1_D.JPG.iris
+│   │   ├── LB-1-1_D.JPG.iris
+│   │   ├── LB--1-1_E.JPG.iris
+│   │   ├── LB-1-1_E.JPG.iris
+│   │   ├── LBBlood-5%-1-1_A.JPG.iris
+│   │   ├── LBBlood-5%-1-1_B.JPG.iris
+│   │   ├── LBBlood-5%-1-1_C.JPG.iris
+│   │   ├── LBBlood-5%-1-1_E.JPG.iris
+│   │   ├── LBUrine-5%-1-1_A.JPG.iris
+│   │   ├── LBUrine-5%-1-1_B.JPG.iris
+│   │   ├── LBUrine-5%-1-1_C.JPG.iris
+│   │   ├── LBUrine-5%-1-1_D.JPG.iris
+│   │   ├── LBUrine-5%-1-1_E.JPG.iris
+│   │   ├── M9-GLUCOSE-1-1_B.JPG.iris
+│   │   ├── masterplate_kp_A.JPG.iris
+│   │   ├── masterplate_kp_B.JPG.iris
+│   │   ├── masterplate_kp_C.JPG.iris
+│   │   ├── masterplate_kp_D.JPG.iris
+│   │   ├── masterplate_kp_E.JPG.iris
+│   │   ├── masterplate_kp_F.JPG.iris
+│   │   ├── Methanol-1%-1-1_B.JPG.iris
+│   │   ├── Methanol-1%-1-1_C.JPG.iris
+│   │   ├── METHANOL-1%-1-1_D.JPG.iris
+│   │   ├── Methanol-1%-1-1_E.JPG.iris
+│   │   ├── Methanol-5%-1-1_A.JPG copy.iris
+│   │   ├── Methanol-5%-1-1_A.JPG.grid copy.jpg
+│   │   ├── Methanol-5%-1-1_A.JPG.iris
+│   │   ├── Methanol-5%-1-1_B.JPG.grid copy.jpg
+│   │   ├── Methanol-5%-1-1_B.JPG.iris
+│   │   ├── Methanol-5%-1-1_C.JPG copy.iris
+│   │   ├── Methanol-5%-1-1_C.JPG.grid copy.jpg
+│   │   ├── Methanol-5%-1-1_C.JPG.iris
+│   │   ├── Methanol-5%-1-1_D.JPG.iris
+│   │   ├── METHANOL-5%-1-1_D.JPG.iris
+│   │   ├── Methanol-5%-1-1_E.JPG.grid copy.jpg
+│   │   ├── Methanol-5%-1-1_E.JPG.iris
+│   │   ├── pH-5-1-1_A.JPG.iris
+│   │   ├── pH-5-1-1_B.JPG.iris
+│   │   ├── pH-5-1-1_C.JPG.iris
+│   │   ├── pH-5-1-1_D.JPG.iris
+│   │   ├── pH-5-1-1_E.JPG.iris
+│   │   ├── pH-6-1-1_A.JPG.iris
+│   │   ├── pH-6-1-1_B.JPG.iris
+│   │   ├── pH-6-1-1_C.JPG.iris
+│   │   ├── pH-6-1-1_D.JPG.iris
+│   │   ├── pH-6-1-1_E.JPG.iris
+│   │   ├── pH-8-1-1_A.JPG.iris
+│   │   ├── pH-8-1-1_B.JPG.iris
+│   │   ├── pH-8-1-1_C.JPG.iris
+│   │   ├── pH-9-1-1_A.JPG.iris
+│   │   ├── pH-9-1-1_C.JPG.iris
+│   │   ├── pH-9-1-1_D.JPG.iris
+│   │   ├── pH-9-1-1_E.JPG.iris
+│   │   ├── PROPANOL1%-1-1_A.JPG.iris
+│   │   ├── PROPANOL1%-1-1_B.JPG.iris
+│   │   ├── PROPANOL1%-1-1_C.JPG.iris
+│   │   ├── PROPANOL1%-1-1_D.JPG.iris
+│   │   ├── PROPANOL1%-1-1_E.JPG.iris
+│   │   ├── RPMI-1-1_C.JPG.iris
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_A.JPG.iris
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_B.JPG.iris
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_C.JPG.iris
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_D.JPG.iris
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_E.JPG.iris
+│   │   ├── TWEEN20-0,8%-1-1_A.JPG.iris
+│   │   ├── TWEEN20-0,8%-1-1_B.JPG.iris
+│   │   ├── TWEEN20-0,8%-1-1_C.JPG.iris
+│   │   ├── TWEEN20-0.8%-1-1_D.JPG.iris
+│   │   ├── TWEEN20-0,8%-1-1_E.JPG.iris
+│   │   ├── TWEEN20-1,5%-1-1_A.JPG.iris
+│   │   ├── TWEEN20-1,5%-1-1_B.JPG.iris
+│   │   ├── TWEEN20-1,5%-1-1_C.JPG.iris
+│   │   ├── TWEEN20-1,5%-1-1_D.JPG.iris
+│   │   ├── TWEEN20-1,5%-1-1_E.JPG.iris
+│   │   ├── UV-12sec1-1_A.JPG.iris
+│   │   ├── UV-12sec1-1_B.JPG.iris
+│   │   ├── UV-12sec1-1_C.JPG.iris
+│   │   ├── UV-12sec1-1_D.JPG.iris
+│   │   ├── UV-12sec1-1_E.JPG.iris
+│   │   ├── UV-24sec1-1_A.JPG.iris
+│   │   ├── UV-24sec1-1_B.JPG.iris
+│   │   ├── UV-6sec1-1_A.JPG.iris
+│   │   ├── UV-6sec1-1_B.JPG.iris
+│   │   ├── UV-6sec1-1_C.JPG.iris
+│   │   ├── UV-6sec1-1_D.JPG.iris
+│   │   └── UV-6sec1-1_E.JPG.iris
+│   ├── plate_images
+│   │   ├── ACETICACID-0,7mM-1-1_A.JPG.grid.jpg
+│   │   ├── ACETICACID-0,7mM-1-1_B.JPG.grid.jpg
+│   │   ├── ACETICACID-0,7mM-1-1_C.JPG.grid.jpg
+│   │   ├── ACETICACID-0,7mM-1-1_E.JPG.grid.jpg
+│   │   ├── ACETICACID-1mM-1-1_A.JPG.grid.jpg
+│   │   ├── ACETICACID-1mM-1-1_B.JPG.grid.jpg
+│   │   ├── ACETICACID-1mM-1-1_D.JPG.grid.jpg
+│   │   ├── ACETICACID-1mM-1-1_E.JPG.grid.jpg
+│   │   ├── ACETICACID-5mM-1-1_A.JPG.grid.jpg
+│   │   ├── ACETICACID-5mM-1-1_B.JPG.grid.jpg
+│   │   ├── ACETICACID-5mM-1-1_C.JPG.grid.jpg
+│   │   ├── ACETICACID-5mM-1-1_E.JPG.grid.jpg
+│   │   ├── BLEACH-1%-1-1_A.JPG.grid.jpg
+│   │   ├── BLEACH-1%-1-1_B.JPG.grid.jpg
+│   │   ├── BLEACH-1%-1-1_C.JPG.grid.jpg
+│   │   ├── BLEACH-1%-1-1_D.JPG.grid.jpg
+│   │   ├── BLEACH-1%-1-1_E.JPG.grid.jpg
+│   │   ├── Ceftazidime-0,2ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Ceftazidime-0,2ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Ceftazidime-0,2ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Ceftazidime-0,2ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Ceftazidime-0,2ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Ceftazidime-1ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Ceftazidime-1ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Ceftazidime-1ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Ceftazidime-1ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Ceftazidime-1ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Ceftazidime-2ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Ceftazidime-2ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Ceftazidime-2ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Ceftazidime-2ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Ceftazidime-2ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Chloramphenicol-16ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Chloramphenicol-1,6ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Chloramphenicol-16ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Chloramphenicol-1,6ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Chloramphenicol-16ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Chloramphenicol-1,6ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Chloramphenicol-16ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Chloramphenicol-1,6ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Chloramphenicol-8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Chloramphenicol-8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Chloramphenicol-8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Chloramphenicol-8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Chloramphenicol-8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,05ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,25ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Ciprofloxacin-0,5ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Colisitin-8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Colisitin-8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Colisitin-8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Colisitin-8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Colisitin-8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Colistin-0.8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Colistin-0.8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Colistin-0.8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Colistin-0.8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Colistin-0.8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Colistin-4ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Colistin-4ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Colistin-4ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Colistin-4ugml-1-1_D.JPG.grid.jpg
+│   │   ├── COLISTIN-4ugml-1-1_E.JPG.grid.jpg
+│   │   ├── DMSO10%-1-1_A.JPG.grid.jpg
+│   │   ├── DMSO10%-1-1_B.JPG.grid.jpg
+│   │   ├── DMSO10%-1-1_C.JPG.grid.jpg
+│   │   ├── DMSO10%-1-1_D.JPG.grid.jpg
+│   │   ├── DMSO10%-1-1_E.JPG.grid.jpg
+│   │   ├── DMSO-1%-1-1_A.JPG.grid.jpg
+│   │   ├── DMSO-1%-1-1_B.JPG.grid.jpg
+│   │   ├── DMSO-1%-1-1_C.JPG.grid.jpg
+│   │   ├── DMSO-1%-1-1_E.JPG.grid.jpg
+│   │   ├── EDTA-0.1mM-1-1_A.JPG.grid.jpg
+│   │   ├── EDTA-0.1mM-1-1_B.JPG.grid.jpg
+│   │   ├── EDTA-0.1mM-1-1_C.JPG.grid.jpg
+│   │   ├── EDTA-0.1mM-1-1_D.JPG.grid.jpg
+│   │   ├── EDTA-0.1mM-1-1_E.JPG.grid.jpg
+│   │   ├── EDTA-0.5mM-1-1_A.JPG.grid.jpg
+│   │   ├── EDTA-0.5mM-1-1_B.JPG.grid.jpg
+│   │   ├── EDTA-0.5mM-1-1_C.JPG.grid.jpg
+│   │   ├── EDTA-0.5mM-1-1_D.JPG.grid.jpg
+│   │   ├── EDTA-0.5mM-1-1_E.JPG.grid.jpg
+│   │   ├── EDTA-1mM-1-1_A.JPG.grid.jpg
+│   │   ├── EDTA-1mM-1-1_B.JPG.grid.jpg
+│   │   ├── EDTA-1mM-1-1_C.JPG.grid.jpg
+│   │   ├── EDTA-1mM-1-1_D.JPG.grid.jpg
+│   │   ├── EDTA-1mM-1-1_E.JPG.grid.jpg
+│   │   ├── ETHANOL-1%-1-1_A.JPG.grid.jpg
+│   │   ├── ETHANOL-1%-1-1_B.JPG.grid.jpg
+│   │   ├── ETHANOL-1%-1-1_C.JPG.grid.jpg
+│   │   ├── ETHANOL-1%-1-1_D.JPG.grid.jpg
+│   │   ├── ETHANOL-1%-1-1_E.JPG.grid.jpg
+│   │   ├── ethanol-5%-1-1_A.JPG.grid.jpg
+│   │   ├── ethanol-5%-1-1_B.JPG.grid.jpg
+│   │   ├── ethanol-5%-1-1_C.JPG.grid.jpg
+│   │   ├── ethanol-5%-1-1_D.JPG.grid.jpg
+│   │   ├── ethanol-5%-1-1_E.JPG.grid.jpg
+│   │   ├── Gentamycin-0,8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Gentamycin-0,8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Gentamycin-0,8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Gentamycin-0,8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Gentamycin-0,8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Gentamycin-4ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Gentamycin-4ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Gentamycin-4ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Gentamycin-4ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Gentamycin-4ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Gentamycin-8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Gentamycin-8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Gentamycin-8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Gentamycin-8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Gentamycin-8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Imipenem-0.1ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Imipenem-0.1ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Imipenem-0.1ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Imipenem-0.1ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Imipenem-0.1ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Imipenem-0.5 ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Imipenem-0.5 ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Imipenem-0.5 ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Imipenem-0.5 ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Imipenem-0.5 ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Imipenem-1 ugml-1-1_A.JPG.grid.jpg
+│   │   ├── Imipenem-1 ugml-1-1_B.JPG.grid.jpg
+│   │   ├── Imipenem-1 ugml-1-1_C.JPG.grid.jpg
+│   │   ├── Imipenem-1 ugml-1-1_D.JPG.grid.jpg
+│   │   ├── Imipenem-1 ugml-1-1_E.JPG.grid.jpg
+│   │   ├── Indole-1mM-1-1_A.JPG.grid.jpg
+│   │   ├── Indole-1mM-1-1_B.JPG.grid.jpg
+│   │   ├── Indole-1mM-1-1_C.JPG.grid.jpg
+│   │   ├── Indole-1mM-1-1_D.JPG.grid.jpg
+│   │   ├── Indole-1mM-1-1_E.JPG.grid.jpg
+│   │   ├── LB--1-1_A.JPG.grid.jpg
+│   │   ├── LB--1-1_B.JPG.grid.jpg
+│   │   ├── LB--1-1_C.JPG.grid.jpg
+│   │   ├── LB--1-1_D.JPG.grid.jpg
+│   │   ├── LB--1-1_E.JPG.grid.jpg
+│   │   ├── LBBlood-5%-1-1_A.JPG.grid.jpg
+│   │   ├── LBBlood-5%-1-1_B.JPG.grid.jpg
+│   │   ├── LBBlood-5%-1-1_C.JPG.grid.jpg
+│   │   ├── LBBlood-5%-1-1_D.JPG.grid.jpg
+│   │   ├── LBBlood-5%-1-1_E.JPG.grid.jpg
+│   │   ├── LBUrine-5%-1-1_A.JPG.grid.jpg
+│   │   ├── LBUrine-5%-1-1_B.JPG.grid.jpg
+│   │   ├── LBUrine-5%-1-1_C.JPG.grid.jpg
+│   │   ├── LBUrine-5%-1-1_D.JPG.grid.jpg
+│   │   ├── LBUrine-5%-1-1_E.JPG.grid.jpg
+│   │   ├── M9-GLUCOSE-1-1_A.JPG.grid.jpg
+│   │   ├── M9-GLUCOSE-1-1_B.JPG.grid.jpg
+│   │   ├── M9-GLUCOSE-1-1_C.JPG.grid.jpg
+│   │   ├── M9-GLUCOSE-1-1_D.JPG.grid.jpg
+│   │   ├── M9-GLUCOSE-1-1_E.JPG.grid.jpg
+│   │   ├── MERCUROCHROME-0.02%-1-1_A.JPG.grid.jpg
+│   │   ├── MERCUROCHROME-0.02%-1-1_B.JPG.grid.jpg
+│   │   ├── MERCUROCHROME-0.02%-1-1_C.JPG.grid.jpg
+│   │   ├── MERCUROCHROME-0.02%-1-1_D.JPG.grid.jpg
+│   │   ├── MERCUROCHROME-0.02%-1-1_E.JPG.grid.jpg
+│   │   ├── Methanol-1%-1-1_A.JPG.grid.jpg
+│   │   ├── Methanol-1%-1-1_B.JPG.grid.jpg
+│   │   ├── Methanol-1%-1-1_C.JPG.grid.jpg
+│   │   ├── Methanol-1%-1-1_E.JPG.grid.jpg
+│   │   ├── Methanol-5%-1-1_A.JPG.grid.jpg
+│   │   ├── Methanol-5%-1-1_B.JPG.grid.jpg
+│   │   ├── Methanol-5%-1-1_C.JPG.grid.jpg
+│   │   ├── Methanol-5%-1-1_D.JPG.grid.jpg
+│   │   ├── Methanol-5%-1-1_E.JPG.grid.jpg
+│   │   ├── pH-5-1-1_A.JPG.grid.jpg
+│   │   ├── pH-5-1-1_B.JPG.grid.jpg
+│   │   ├── pH-5-1-1_C.JPG.grid.jpg
+│   │   ├── pH-5-1-1_D.JPG.grid.jpg
+│   │   ├── pH-5-1-1_E.JPG.grid.jpg
+│   │   ├── pH-6-1-1_A.JPG.grid.jpg
+│   │   ├── pH-6-1-1_B.JPG.grid.jpg
+│   │   ├── pH-6-1-1_C.JPG.grid.jpg
+│   │   ├── pH-6-1-1_D.JPG.grid.jpg
+│   │   ├── pH-6-1-1_E.JPG.grid.jpg
+│   │   ├── pH-8-1-1_A.JPG.grid.jpg
+│   │   ├── pH-8-1-1_B.JPG.grid.jpg
+│   │   ├── pH-8-1-1_C.JPG.grid.jpg
+│   │   ├── pH-8-1-1_D.JPG.grid.jpg
+│   │   ├── pH-8-1-1_E.JPG.grid.jpg
+│   │   ├── pH-9-1-1_A.JPG.grid.jpg
+│   │   ├── pH-9-1-1_B.JPG.grid.jpg
+│   │   ├── pH-9-1-1_C.JPG.grid.jpg
+│   │   ├── pH-9-1-1_D.JPG.grid.jpg
+│   │   ├── pH-9-1-1_E.JPG.grid.jpg
+│   │   ├── PROPANOL1%-1-1_A.JPG.grid.jpg
+│   │   ├── PROPANOL1%-1-1_B.JPG.grid.jpg
+│   │   ├── PROPANOL1%-1-1_C.JPG.grid.jpg
+│   │   ├── PROPANOL1%-1-1_D.JPG.grid.jpg
+│   │   ├── PROPANOL1%-1-1_E.JPG.grid.jpg
+│   │   ├── RPMI-1-1_A.JPG.grid.jpg
+│   │   ├── RPMI-1-1_B.JPG.grid.jpg
+│   │   ├── RPMI-1-1_C.JPG.grid.jpg
+│   │   ├── RPMI-1-1_D.JPG.grid.jpg
+│   │   ├── RPMI-1-1_E.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-0.8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-4ugml-1-1_A.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-4ugml-1-1_B.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-4ugml-1-1_C.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-4ugml-1-1_D.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-4ugml-1-1_E.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-8ugml-1-1_A.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-8ugml-1-1_B.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-8ugml-1-1_C.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-8ugml-1-1_D.JPG.grid.jpg
+│   │   ├── TETRACYCLINE-8ugml-1-1_E.JPG.grid.jpg
+│   │   ├── TWEEN20-0,8%-1-1_A.JPG.grid.jpg
+│   │   ├── TWEEN20-0,8%-1-1_B.JPG.grid.jpg
+│   │   ├── TWEEN20-0,8%-1-1_C.JPG.grid.jpg
+│   │   ├── TWEEN20-0,8%-1-1_E.JPG.grid.jpg
+│   │   ├── TWEEN20-1,5%-1-1_A.JPG.grid.jpg
+│   │   ├── TWEEN20-1,5%-1-1_B.JPG.grid.jpg
+│   │   ├── TWEEN20-1,5%-1-1_C.JPG.grid.jpg
+│   │   ├── TWEEN20-1,5%-1-1_E.JPG.grid.jpg
+│   │   ├── UV-12sec-1-1_A.JPG.grid.jpg
+│   │   ├── UV-12sec-1-1_B.JPG.grid.jpg
+│   │   ├── UV-12sec-1-1_C.JPG.grid.jpg
+│   │   ├── UV-12sec-1-1_D.JPG.grid.jpg
+│   │   ├── UV-12sec-1-1_E.JPG.grid.jpg
+│   │   ├── UV-24sec-1-1_A.JPG.grid.jpg
+│   │   ├── UV-24sec-1-1_B.JPG.grid.jpg
+│   │   ├── UV-24sec-1-1_C.JPG.grid.jpg
+│   │   ├── UV-24sec-1-1_D.JPG.grid.jpg
+│   │   ├── UV-24sec-1-1_E.JPG.grid.jpg
+│   │   ├── UV-6sec-1-1_A.JPG.grid.jpg
+│   │   ├── UV-6sec-1-1_B.JPG.grid.jpg
+│   │   ├── UV-6sec-1-1_C.JPG.grid.jpg
+│   │   ├── UV-6sec-1-1_D.JPG.grid.jpg
+│   │   └── UV-6sec-1-1_E.JPG.grid.jpg
+│   ├── reference.gbk.gb
+│   ├── resistance_genes_seq.fsa
+│   ├── resist_genes.json
+│   ├── strain_names.csv
+│   └── virulence_genes_seq.fas
+├── downloads.txt
+├── file_structure.txt
+├── Models
+│   ├── pca_500_circularity_Colistin_0.8ugml
+│   ├── pca_500_fitted_model_xg.joblib
+│   ├── pca_500_opacity_Colistin_0.8ugml
+│   ├── pca_500_size_Colistin_0.8ugml
+│   └── unitig_to_index_xg.pkl
+├── README.md
+└── requirements.txt
+
+8 directories, 501 files

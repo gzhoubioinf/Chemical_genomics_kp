@@ -1,25 +1,25 @@
-project_file: "/ibex/user/hinkovn/backup_Project_File"
+project_file: "/ibex/user/hiProject_File"
 
-pca_model_file: "/ibex/user/hinkovn/backup_Project_File/Models/pca_500_fitted_model_xg.joblib"
-unitig_to_index_file: "/ibex/user/hinkovn/backup_Project_File/Models/unitig_to_index_xg.pkl"
+pca_model_file: "/ibex/user/hinkovn/Project_File/Models/pca_500_fitted_model_xg.joblib"
+unitig_to_index_file: "/ibex/user/hinkovn/Project_File/Models/unitig_to_index_xg.pkl"
 
 MODEL_PATHS:
   Colistin_0.8ugml:
-    opacity: "/ibex/user/hinkovn/backup_Project_File/Models/pca_500_opacity_Colistin_0.8ugml"
-    circularity: "/ibex/user/hinkovn/backup_Project_File/Models/pca_500_circularity_Colistin_0.8ugml"
-    size: "/ibex/user/hinkovn/backup_Project_File/Models/pca_500_size_Colistin_0.8ugml"
+    opacity: "/ibex/user/hinkovn/Project_File/Models/pca_500_opacity_Colistin_0.8ugml"
+    circularity: "/ibex/user/hinkovn/Project_File/Models/pca_500_circularity_Colistin_0.8ugml"
+    size: "/ibex/user/hinkovn/Project_File/Models/pca_500_size_Colistin_0.8ugml"
 
 files:
-  strain_file: "/ibex/user/hinkovn/backup_Project_File/data/strain_names.csv"  # Corrected 'starain' to 'strain' if it's a typo
-  circularity_data: "/ibex/user/hinkovn/backup_Project_File/data/dependent_median_circularity_ML.csv"
-  size_data: "/ibex/user/hinkovn/backup_Project_File/data/dependent_median_size_ML.csv"
-  opacity_data: "/ibex/user/hinkovn/backup_Project_File/data/dependent_median_opacity_ML.csv"
-  amr_data: "/ibex/user/hinkovn/backup_Project_File/data/combined_amr_kleborate_ast_with_14thAug_iris.tsv"
-  gene_antibiotics: "/ibex/user/hinkovn/backup_Project_File/data/resist_genes.json"
-  reference_gbff: "/ibex/user/hinkovn/backup_Project_File/data/reference.gbk.gb"
-  all_fsa: "/ibex/user/hinkovn/backup_Project_File/data/resistance_genes_seq.fsa"
-  vfdb_fas: "/ibex/user/hinkovn/backup_Project_File/data/virulence_genes_seq.fas"
+  strain_file: "/ibex/user/hinkovn/Project_File/data/strain_names.csv"  # Corrected 'starain' to 'strain' if it's a typo
+  circularity_data: "/ibex/user/hinkovn/Project_File/data/dependent_median_circularity_ML.csv"
+  size_data: "/ibex/user/hinkovn/Project_File/data/dependent_median_size_ML.csv"
+  opacity_data: "/ibex/user/hinkovn/Project_File/data/dependent_median_opacity_ML.csv"
+  amr_data: "/ibex/user/hinkovn/Project_File/data/combined_amr_kleborate_ast_with_14thAug_iris.tsv"
+  gene_antibiotics: "/ibex/user/hinkovn/Project_File/data/resist_genes.json"
+  reference_gbff: "/ibex/user/hinkovn/Project_File/data/reference.gbk.gb"
+  all_fsa: "/ibex/user/hinkovn/Project_File/data/resistance_genes_seq.fsa"
+  vfdb_fas: "/ibex/user/hinkovn/Project_File/data/virulence_genes_seq.fas"
 
 directories:
-  image_directory: "/ibex/user/hinkovn/backup_Project_File/data/plate_images/"
-  iris_directory: "/ibex/user/hinkovn/backup_Project_File/data/iris_measurements/"
+  image_directory: "/ibex/user/hinkovn/Project_File/data/plate_images/"
+  iris_directory: "/ibex/user/hinkovn/Project_File/data/iris_measurements/"
