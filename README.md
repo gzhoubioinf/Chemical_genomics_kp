@@ -149,7 +149,7 @@ In addition to colony image analysis, the application offers **machine learning 
 Overall, the ML-based prediction module connects **genomic information** to **phenotypic traits** , making it easy to hypothesize how certain genetic features might affect colony characyeristics under specific growth conditions.
 
 
-![ml](/ibex/user/hinkovn/Project_File/img4github/ml.png)
+![ml](img4github/ml.png)
 
 ---
 
