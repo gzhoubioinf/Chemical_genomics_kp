@@ -104,7 +104,7 @@ All metrics are plotted for each of the **5 replicates** (one plot per condition
 - **Resistance Genes and Mutations & Virulence Genes**: A list of detected genetic elements relevant to antimicrobial resistance and virulence.  
 
 
-![Colonypicker](/ibex/user/hinkovn/Project_File/img4github/colonypicker.png)
+![Colonypicker](img4github/colonypicker.png)
 
 ----
 
