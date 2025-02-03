@@ -20,36 +20,36 @@ ChemGenomicsKp is a **Streamlit-based application** for analyzing bacterial colo
 
 ## File structure
 
+```plaintext
 ChemGenomicsKp/
 ├── app/
 │   ├── __init__.py
 │   ├── main.py
 │   ├── colony_picker.py
 │   ├── ml_prediction.py
-│   └── utils/
-│       ├── __init__.py
-│       ├── data_loading.py
-│       ├── image_handling.py
-│       ├── ml_models.py
-│       └── gbff_processing.py
+│   └── ...
+├── utils/
+│   ├── __init__.py
+│   ├── data_loading.py
+│   ├── image_handling.py
+│   ├── ml_models.py
+│   └── gbff_processing.py
 ├── config/
 │   └── config.yaml
 ├── data/
 │   ├── resistance_genes_seq.fsa
 │   ├── virulence_genes_seq.fas
 │   ├── reference.gbk.gb
-│   └── ... (other data files)
+│   └── ...
 ├── models/
-│   ├── pca_500_fitted_model_xg.joblib - to be downloaded from LINK 
-│   ├── unitig_to_index_xg.pkl - to be downloaded from LINK
-│   └── ... (other model files)
+│   ├── pca_500_fitted_model_xg.joblib  # To be downloaded from link in "Install Dependencies" section
+│   ├── unitig_to_index_xg.pkl  # To be downloaded from link in "Install Dependencies" section
+│   └── ...
 ├── newfigs/
-│   └── ... (images of 23x48 plates of colonies)
-├── iris_measurements/
-│   └── ... (IRIS measurement files)
+├── iris_measurements/  # IRIS measurement files
 ├── requirements.txt
 ├── README.md
-├── .gitignore
+└── .gitignore
 
 ---
 
@@ -149,7 +149,7 @@ In addition to colony image analysis, the application offers **machine learning 
 Overall, the ML-based prediction module connects **genomic information** to **phenotypic traits** , making it easy to hypothesize how certain genetic features might affect colony characyeristics under specific growth conditions.
 
 
-![Colonypicker](/ibex/user/hinkovn/Project_File/img4github/ml.png)
+![ml](/ibex/user/hinkovn/Project_File/img4github/ml.png)
 
 ---
 
