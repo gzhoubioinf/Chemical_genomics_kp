@@ -207,7 +207,8 @@ def colonypicker(config):
 
                 adj_row = row - 1
                 adj_col = col - 1
-                extracted = extract_colony(plate_img, adj_row, adj_col, cell_width, cell_height)
+                # In colonypicker function:
+                extracted = extract_colony(plate_img, adj_row, adj_col)
 
                 if extracted is not None:
                     rgb_img = cv2.cvtColor(extracted, cv2.COLOR_BGR2RGB)

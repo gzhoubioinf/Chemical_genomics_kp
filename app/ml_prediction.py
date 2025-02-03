@@ -20,6 +20,8 @@ import warnings
 import time
 import pickle
 from Bio.Seq import Seq
+
+# Utils imports (assuming they exist in your project structure)
 from app.utils.data_loading import load_csv, load_excel
 from app.utils.image_handling import crop_img, extract_colony
 from app.utils.ml_models import load_pca_and_unitigs, load_xgb_models_for_condition, load_distributions
@@ -27,6 +29,17 @@ from app.utils.gbff_processing import process_gbff
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
+
+# ------------------------------------------------------------------------------------
+# AESTHETIC ENHANCEMENTS FOR PLOTTING
+# ------------------------------------------------------------------------------------
+sns.set_style("whitegrid")  # White grid background
+sns.set_context("talk")     # Larger, more legible text sizes in plots
+plt.rcParams["figure.facecolor"] = "white"
+plt.rcParams["axes.facecolor"] = "white"
+# You can adjust color palettes if you like:
+# sns.set_palette("Set2")  # Example palette
+# ------------------------------------------------------------------------------------
 
 @st.cache_data(show_spinner=False)
 def fasta_to_unitig_vector(fasta_contents, unitig_index, total_unitigs, k=31):
@@ -75,6 +88,7 @@ def app_fasta_prediction(config):
     with st.spinner("Loading PCA model and unitig_to_index mapping..."):
         pca, unitig_to_index = load_pca_and_unitigs(config['pca_model_file'], config['unitig_to_index_file'])
     
+    # Prepare reverse index for convenience
     index_to_unitig = [None] * len(unitig_to_index)
     for u, i in unitig_to_index.items():
         index_to_unitig[i] = u
@@ -157,12 +171,21 @@ def app_fasta_prediction(config):
         o_mean, o_s, o_pct, o_diff = compute_stats(df_opa, pred_opacity)
         s_mean, s_s, s_pct, s_diff = compute_stats(df_siz, pred_size)
 
-        # Circularity
+        # ------------------------------------------------------------------------------------
+        # Circularity Plot
+        # ------------------------------------------------------------------------------------
         st.write("### Circularity Distribution")
-        fig, ax = plt.subplots(figsize=(6, 4))
-        sns.kdeplot(df_circ[df_circ.columns[-1]], fill=True, ax=ax, bw_method='scott')
-        ax.axvline(pred_circ, color='red', linestyle='--', label='Prediction')
-        ax.axvline(c_mean, color='gray', linestyle=':', label='Dataset Mean')
+        fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
+        sns.kdeplot(
+            df_circ[df_circ.columns[-1]], 
+            fill=True, 
+            color='skyblue', 
+            alpha=0.7, 
+            bw_method='scott',
+            ax=ax
+        )
+        ax.axvline(pred_circ, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Prediction')
+        ax.axvline(c_mean, color='gray', linestyle=':', linewidth=2, alpha=0.9, label='Dataset Mean')
         ax.set_xlabel("Circularity")
         ax.set_ylabel("Density")
         ax.legend()
@@ -174,12 +197,21 @@ def app_fasta_prediction(config):
             f"(Percentile: {c_pct:.1f}%, Diff: {c_diff:.1f}%, S-score: {c_s:.2f})"
         )
 
-        # Opacity
+        # ------------------------------------------------------------------------------------
+        # Opacity Plot
+        # ------------------------------------------------------------------------------------
         st.write("### Opacity Distribution")
-        fig, ax = plt.subplots(figsize=(6, 4))
-        sns.kdeplot(df_opa[df_opa.columns[-1]], fill=True, ax=ax, bw_method='scott')
-        ax.axvline(pred_opacity, color='red', linestyle='--', label='Prediction')
-        ax.axvline(o_mean, color='gray', linestyle=':', label='Dataset Mean')
+        fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
+        sns.kdeplot(
+            df_opa[df_opa.columns[-1]], 
+            fill=True, 
+            color='lightcoral', 
+            alpha=0.7, 
+            bw_method='scott',
+            ax=ax
+        )
+        ax.axvline(pred_opacity, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Prediction')
+        ax.axvline(o_mean, color='gray', linestyle=':', linewidth=2, alpha=0.9, label='Dataset Mean')
         ax.set_xlabel("Opacity")
         ax.set_ylabel("Density")
         ax.legend()
@@ -191,12 +223,21 @@ def app_fasta_prediction(config):
             f"(Percentile: {o_pct:.1f}%, Diff: {o_diff:.1f}%, S-score: {o_s:.2f})"
         )
 
-        # Size
+        # ------------------------------------------------------------------------------------
+        # Size Plot
+        # ------------------------------------------------------------------------------------
         st.write("### Size Distribution")
-        fig, ax = plt.subplots(figsize=(6, 4))
-        sns.kdeplot(df_siz[df_siz.columns[-1]], fill=True, ax=ax, bw_method='scott')
-        ax.axvline(pred_size, color='red', linestyle='--', label='Prediction')
-        ax.axvline(s_mean, color='gray', linestyle=':', label='Dataset Mean')
+        fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
+        sns.kdeplot(
+            df_siz[df_siz.columns[-1]], 
+            fill=True, 
+            color='mediumseagreen', 
+            alpha=0.7, 
+            bw_method='scott',
+            ax=ax
+        )
+        ax.axvline(pred_size, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Prediction')
+        ax.axvline(s_mean, color='gray', linestyle=':', linewidth=2, alpha=0.9, label='Dataset Mean')
         ax.set_xlabel("Size")
         ax.set_ylabel("Density")
         ax.legend()
@@ -208,7 +249,9 @@ def app_fasta_prediction(config):
             f"(Percentile: {s_pct:.1f}%, Diff: {s_diff:.1f}%, S-score: {s_s:.2f})"
         )
 
-        # 3) PCA/SHAP
+        # ------------------------------------------------------------------------------------
+        # PCA & SHAP Analysis
+        # ------------------------------------------------------------------------------------
         st.write("---")
         st.header("PCA and SHAP Analysis")
 
@@ -249,22 +292,34 @@ def app_fasta_prediction(config):
                     unitig_to_index
                 )
 
+            # Group identified genes by PC
             pc_to_genes = defaultdict(set)
             for pc_num, unitig, gene in matches:
                 if gene != "Unknown":
                     pc_to_genes[pc_num].add(gene)
 
+            # Generate more descriptive labels for chart
             pc_numbers = [
-                f"PC{pc_idx +1}=>{', '.join(list(pc_to_genes[pc_idx +1])[:3]) or 'noGene'}"
+                f"PC{pc_idx +1} => {', '.join(list(pc_to_genes[pc_idx +1])[:3]) or 'noGene'}"
                 for pc_idx in top_pc_indices
             ]
             shap_values_top = shap_vals_for_sample[top_pc_indices]
 
             st.write("### SHAP Values with PC-to-Gene Mappings")
-            plt.figure(figsize=(10, max(6, num_pcs * 0.3)))
-            plt.barh(pc_numbers, shap_values_top, color='mediumpurple')
-            plt.axvline(x=0, color="black", linestyle="--", linewidth=0.8)
-            plt.xlabel("SHAP value (impact on model output)", fontsize=11)
-            plt.title("Opacity Model - SHAP with Top Gene Labels", fontsize=14)
+
+            # More aesthetic bar chart
+            plt.figure(
+                figsize=(10, max(6, num_pcs * 0.4)), 
+                facecolor='white'
+            )
+            bar_colors = sns.color_palette("coolwarm", n_colors=len(shap_values_top))
+            plt.barh(
+                pc_numbers, 
+                shap_values_top, 
+                color=bar_colors
+            )
+            plt.axvline(x=0, color="black", linestyle="--", linewidth=1.0, alpha=0.8)
+            plt.xlabel("SHAP value (impact on model output)", fontsize=12)
+            plt.title("Opacity Model - SHAP with Top PC-to-Gene Mappings", fontsize=14)
             plt.tight_layout()
             st.pyplot(plt)

@@ -5,64 +5,71 @@ def crop_img(image_path):
     """Reads an image from disk in BGR format."""
     return cv2.imread(image_path)
 
-def extract_colony(img, row, col, w, h):
-    """
-    Extract the grid cell at (row, col), find the largest contour
-    that represents the colony outline, and re-center so the entire colony
-    is in the middle of the extracted snippet.
-    """
-    # Coordinates of the raw sub-cell
-    x = col * w
-    y = row * h
-    cell = img[y:y + h, x:x + w]
+def extract_colony(img, row, col, num_rows=32, num_cols=48):
+    """Improved colony extraction with dynamic grid calculations"""
+    # Get image dimensions
+    img_height, img_width = img.shape[:2]
+    
+    # Calculate cell dimensions based on full grid size
+    cell_height = img_height / num_rows  # More precise than hardcoded 90
+    cell_width = img_width / num_cols    # More precise than hardcoded 104
+    
+    # Calculate position using floating-point precision
+    x = col * cell_width
+    y = row * cell_height
+    
+    # Convert to integers with boundary checks
+    x_start = int(round(x))
+    y_start = int(round(y))
+    x_end = int(round(x + cell_width))
+    y_end = int(round(y + cell_height))
 
-    # Ensure the extracted cell matches the expected dimensions
-    if cell.shape[:2] != (h, w):
-        cell = cv2.resize(cell, (w, h))
+    # Ensure we stay within image bounds
+    x_start = max(0, min(x_start, img_width - 2))
+    y_start = max(0, min(y_start, img_height - 2))
+    x_end = max(x_start + 1, min(x_end, img_width))
+    y_end = max(y_start + 1, min(y_end, img_height))
 
+    # Extract base cell
+    cell = img[y_start:y_end, x_start:x_end]
+
+    # Rest of the original processing logic
     if cell.size == 0:
         return None
 
-    # Turquoise color range(s)
-    lower_bound = np.array([130 - 40, 200 - 40, 70 - 40])  # Approx (B, G, R)
+    # Turquoise color range detection (keep original code)
+    lower_bound = np.array([130 - 40, 200 - 40, 70 - 40])
     upper_bound = np.array([230 + 40, 255, 180 + 40])
-
-    # Clamp to [0..255]
     lower_bound = np.clip(lower_bound, 0, 255)
     upper_bound = np.clip(upper_bound, 0, 255)
 
-    # Create mask for contours
     mask = cv2.inRange(cell, lower_bound, upper_bound)
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     if not contours:
-        # No contours detected; return the original unmodified cell, resized if needed
         return cell
 
-    # Pick the largest contour as the main colony
+    # Contour processing (keep original code)
     colony_contour = max(contours, key=cv2.contourArea)
     xC, yC, wC, hC = cv2.boundingRect(colony_contour)
-
-    # Center of bounding box in the sub-cell
+    
+    # Recenter using actual cell dimensions
     cX = xC + wC // 2
     cY = yC + hC // 2
-
-    # Center of the snippet
-    sub_center_x = w // 2
-    sub_center_y = h // 2
+    sub_center_x = cell.shape[1] // 2  # Use actual extracted cell width
+    sub_center_y = cell.shape[0] // 2  # Use actual extracted cell height
+    
     shiftX = cX - sub_center_x
     shiftY = cY - sub_center_y
 
-    # Adjust the top-left corner based on that shift
-    startX = max(0, min(x + shiftX, img.shape[1] - w))
-    startY = max(0, min(y + shiftY, img.shape[0] - h))
-    endX = startX + w
-    endY = startY + h
-
-    centered_cell = img[startY:endY, startX:endX]
-
-    # Ensure the final output matches the expected dimensions
-    if centered_cell.shape[:2] != (h, w):
-        centered_cell = cv2.resize(centered_cell, (w, h))
-
+    # Calculate new coordinates in original image
+    new_x = x_start + shiftX
+    new_y = y_start + shiftY
+    
+    # Ensure we don't go out of bounds
+    new_x = max(0, min(new_x, img_width - cell.shape[1]))
+    new_y = max(0, min(new_y, img_height - cell.shape[0]))
+    
+    centered_cell = img[new_y:new_y+cell.shape[0], new_x:new_x+cell.shape[1]]
+    
     return centered_cell
