@@ -209,6 +209,9 @@ Update `config/config.yaml` with correct paths
 ### Web Application
 Run the Streamlit app:
 ```bash
+cd path/to/amr_genomics_kp
+```
+```bash
 streamlit run app/main.py
 ```
 The application will open in your default browser at `http://localhost:8501`
@@ -290,11 +293,12 @@ http://localhost:8501
    - Remove: Click 🗑️ icon after stopping
 
 ### Advantages
-- ✅ No manual model file downloads
-- ✅ Pre-configured environment
-- ✅ Consistent behavior across OS
-- ✅ Single-command updates
-- ✅ Isolated from system packages
+- No manual model file downloads
+- Pre-configured environment
+- Consistent behavior across OS
+- Single-command updates
+- Isolated from system packages
+
 
 ### Maintenance
 ```bash
