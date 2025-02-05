@@ -27,6 +27,14 @@ python /ibex/user/hinkovn/backup_Project_File/cli/amr_genomics_cli.py colony_pic
     --strain H150 \
     --condition "Colistin-0.8ugml"
 
+or 
+
+    python cli/amr_genomics_cli.py colony_picker \
+    --config config/config.yaml \
+    --row 3 \
+    --col 4 \
+    --condition "Colistin-0.8ugml"
+
 2) ML Prediction:
 
 python /ibex/user/hinkovn/backup_Project_File/cli/amr_genomics_cli.py \
@@ -108,27 +116,41 @@ def crop_img(image_path):
         print(f"[ERROR] Failed to read image: {image_path}")
     return img
 
-def extract_colony(img, row, col, w, h):
-    """
-    Extract the grid cell at (row, col), find the largest contour
-    that represents the colony outline, and re-center so the entire colony
-    is in the middle of the snippet.
-    """
-    x = col * w
-    y = row * h
-    cell = img[y:y + h, x:x + w]
+def extract_colony(img, row, col, num_rows=32, num_cols=48):
+    """Improved colony extraction with dynamic grid calculations"""
+    # Get image dimensions
+    img_height, img_width = img.shape[:2]
+    
+    # Calculate cell dimensions based on full grid size
+    cell_height = img_height / num_rows  # More precise than hardcoded 90
+    cell_width = img_width / num_cols    # More precise than hardcoded 104
+    
+    # Calculate position using floating-point precision
+    x = col * cell_width
+    y = row * cell_height
+    
+    # Convert to integers with boundary checks
+    x_start = int(round(x))
+    y_start = int(round(y))
+    x_end = int(round(x + cell_width))
+    y_end = int(round(y + cell_height))
 
-    if cell.shape[:2] != (h, w):
-        cell = cv2.resize(cell, (w, h))
+    # Ensure we stay within image bounds
+    x_start = max(0, min(x_start, img_width - 2))
+    y_start = max(0, min(y_start, img_height - 2))
+    x_end = max(x_start + 1, min(x_end, img_width))
+    y_end = max(y_start + 1, min(y_end, img_height))
 
+    # Extract base cell
+    cell = img[y_start:y_end, x_start:x_end]
+
+    # Rest of the original processing logic
     if cell.size == 0:
         return None
 
-    # Define color range for masking (BGR format)
-    lower_bound = np.array([90, 160, 30])   # Example lower bound
-    upper_bound = np.array([270, 255, 210]) # Example upper bound
-
-    # Adjust bounds to valid range
+    # Turquoise color range detection (keep original code)
+    lower_bound = np.array([130 - 40, 200 - 40, 70 - 40])
+    upper_bound = np.array([230 + 40, 255, 180 + 40])
     lower_bound = np.clip(lower_bound, 0, 255)
     upper_bound = np.clip(upper_bound, 0, 255)
 
@@ -136,28 +158,31 @@ def extract_colony(img, row, col, w, h):
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     if not contours:
-        return cell  # Return original cell if no contours
+        return cell
 
+    # Contour processing (keep original code)
     colony_contour = max(contours, key=cv2.contourArea)
     xC, yC, wC, hC = cv2.boundingRect(colony_contour)
-
+    
+    # Recenter using actual cell dimensions
     cX = xC + wC // 2
     cY = yC + hC // 2
-
-    sub_center_x = w // 2
-    sub_center_y = h // 2
+    sub_center_x = cell.shape[1] // 2  # Use actual extracted cell width
+    sub_center_y = cell.shape[0] // 2  # Use actual extracted cell height
+    
     shiftX = cX - sub_center_x
     shiftY = cY - sub_center_y
 
-    startX = max(0, min(col * w + shiftX, img.shape[1] - w))
-    startY = max(0, min(row * h + shiftY, img.shape[0] - h))
-    endX = startX + w
-    endY = startY + h
-
-    centered_cell = img[startY:endY, startX:endX]
-    if centered_cell.shape[:2] != (h, w):
-        centered_cell = cv2.resize(centered_cell, (w, h))
-
+    # Calculate new coordinates in original image
+    new_x = x_start + shiftX
+    new_y = y_start + shiftY
+    
+    # Ensure we don't go out of bounds
+    new_x = max(0, min(new_x, img_width - cell.shape[1]))
+    new_y = max(0, min(new_y, img_height - cell.shape[0]))
+    
+    centered_cell = img[new_y:new_y+cell.shape[0], new_x:new_x+cell.shape[1]]
+    
     return centered_cell
 
 def load_pca_and_unitigs(pca_model_file, unitig_to_index_file):
@@ -338,27 +363,39 @@ def get_color(score, max_score):
 # ---------------------------
 
 def colony_picker(args, config):
-    """
-    Extract colony images, show measurements, gene/mutation info,
-    and distribution plots. Output everything to /ibex/user/hinkovn/AMR_Genomics_KP_Results,
-    and also output all numerical/stats to a .out text file in the same directory.
-    Now modified so that:
-        - All replicate images are combined into a single multi-subplot figure
-        - All distribution plots (circularity, size, opacity) are combined
-          into another multi-subplot figure
-    """
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from scipy.stats import percentileofscore, gaussian_kde
-
     try:
         output_dir = "/ibex/user/hinkovn/AMR_Genomics_KP_Results"
         ensure_dir(output_dir)
 
-        # We will write summary/statistics to this file
+        # Load the strain file from config
+        strain_file_path = config["files"]["strain_file"]
+        try:
+            strains_df = load_excel(strain_file_path)
+        except Exception:
+            strains_df = load_csv(strain_file_path)
+
+        # Decide which input is provided.
+        # If both strain and row/col are provided, you can choose to prioritize strain.
+        if args.strain:
+            strain_identifier = args.strain
+            strain_row_col = strains_df[strains_df['ID'] == args.strain]
+            if strain_row_col.empty:
+                print(f"ERROR: Strain {args.strain} not found in strain file.")
+                sys.exit(1)
+            row = int(strain_row_col.iloc[0]['Row'])
+            col = int(strain_row_col.iloc[0]['Column'])
+        elif args.row is not None and args.col is not None:
+            row = args.row
+            col = args.col
+            strain_identifier = f"r{row}_c{col}"
+        else:
+            print("ERROR: Please provide either --strain or both --row and --col.")
+            sys.exit(1)
+
+        # Use the computed identifier for naming output files.
         summary_filename = os.path.join(
             output_dir,
-            f"colony_picker_{args.strain}_{args.condition}.out"
+            f"colony_picker_{strain_identifier}_{args.condition}.out"
         )
         summary_file = open(summary_filename, "w")
 
@@ -513,7 +550,7 @@ def colony_picker(args, config):
             cell_width, cell_height = 104, 90
             adj_row = row - 1
             adj_col = col - 1
-            extracted = extract_colony(plate_img, adj_row, adj_col, cell_width, cell_height)
+            extracted = extract_colony(plate_img, adj_row, adj_col) 
 
             if extracted is not None:
                 rgb_img = cv2.cvtColor(extracted, cv2.COLOR_BGR2RGB)
@@ -635,7 +672,6 @@ def colony_picker(args, config):
     except Exception as e:
         traceback.print_exc()
         sys.exit(1)
-
 # ---------------------------
 # ML PREDICTION LOGIC
 # ---------------------------
@@ -852,36 +888,35 @@ def ml_prediction(args, config):
 # ---------------------------
 
 def main():
-    try:
-        parser = argparse.ArgumentParser(description="AMR Genomics KP Terminal Application")
-        subparsers = parser.add_subparsers(dest="command", help="Sub-command help")
+    parser = argparse.ArgumentParser(description="AMR Genomics KP Terminal Application")
+    subparsers = parser.add_subparsers(dest="command", help="Sub-command help")
 
-        # Sub-command: colony_picker
-        parser_colony = subparsers.add_parser("colony_picker", help="Extract colony images and data.")
-        parser_colony.add_argument("--config", required=True, help="Path to YAML config file.")
-        parser_colony.add_argument("--strain", required=True, help="Strain name (e.g., H150).")
-        parser_colony.add_argument("--condition", required=True, help="Condition name for images.")
+    # Sub-command: colony_picker
+    parser_colony = subparsers.add_parser("colony_picker", help="Extract colony images and data.")
+    parser_colony.add_argument("--config", required=True, help="Path to YAML config file.")
+    # Remove required=True for strain so it becomes optional.
+    parser_colony.add_argument("--strain", help="Strain name (e.g., H150).")
+    # Add row and col as optional arguments.
+    parser_colony.add_argument("--row", type=int, help="Row coordinate of colony.")
+    parser_colony.add_argument("--col", type=int, help="Column coordinate of colony.")
+    parser_colony.add_argument("--condition", required=True, help="Condition name for images.")
 
-        # Sub-command: ml_prediction
-        parser_ml = subparsers.add_parser("ml_prediction", help="Run ML predictions for one or more FASTA files.")
-        parser_ml.add_argument("--config", required=True, help="Path to YAML config file.")
-        parser_ml.add_argument("--fasta", nargs="+", required=True, help="One or more FASTA files.")
-        parser_ml.add_argument("--condition", required=True, help="Condition for ML models (e.g. Colistin_0.8ugml).")
+    # Sub-command: ml_prediction (unchanged)
+    parser_ml = subparsers.add_parser("ml_prediction", help="Run ML predictions for one or more FASTA files.")
+    parser_ml.add_argument("--config", required=True, help="Path to YAML config file.")
+    parser_ml.add_argument("--fasta", nargs="+", required=True, help="One or more FASTA files.")
+    parser_ml.add_argument("--condition", required=True, help="Condition for ML models (e.g. Colistin_0.8ugml).")
 
-        args = parser.parse_args()
+    args = parser.parse_args()
 
-        if args.command == "colony_picker":
-            config = load_config(args.config)
-            colony_picker(args, config)
-        elif args.command == "ml_prediction":
-            config = load_config(args.config)
-            ml_prediction(args, config)
-        else:
-            parser.print_help()
-
-    except Exception as e:
-        traceback.print_exc()
-        sys.exit(1)
+    if args.command == "colony_picker":
+        config = load_config(args.config)
+        colony_picker(args, config)
+    elif args.command == "ml_prediction":
+        config = load_config(args.config)
+        ml_prediction(args, config)
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

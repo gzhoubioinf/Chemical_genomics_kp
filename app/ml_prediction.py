@@ -30,14 +30,14 @@ from app.utils.gbff_processing import process_gbff
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
 
-# ------------------------------------------------------------------------------------
+
 # AESTHETIC ENHANCEMENTS FOR PLOTTING
-# ------------------------------------------------------------------------------------
+
 sns.set_style("whitegrid")  # White grid background
 sns.set_context("talk")     # Larger, more legible text sizes in plots
 plt.rcParams["figure.facecolor"] = "white"
 plt.rcParams["axes.facecolor"] = "white"
-# You can adjust color palettes if you like:
+# some optional color palette enhancements
 # sns.set_palette("Set2")  # Example palette
 # ------------------------------------------------------------------------------------
 
@@ -171,9 +171,9 @@ def app_fasta_prediction(config):
         o_mean, o_s, o_pct, o_diff = compute_stats(df_opa, pred_opacity)
         s_mean, s_s, s_pct, s_diff = compute_stats(df_siz, pred_size)
 
-        # ------------------------------------------------------------------------------------
+
         # Circularity Plot
-        # ------------------------------------------------------------------------------------
+     
         st.write("### Circularity Distribution")
         fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
         sns.kdeplot(
@@ -197,9 +197,9 @@ def app_fasta_prediction(config):
             f"(Percentile: {c_pct:.1f}%, Diff: {c_diff:.1f}%, S-score: {c_s:.2f})"
         )
 
-        # ------------------------------------------------------------------------------------
+
         # Opacity Plot
-        # ------------------------------------------------------------------------------------
+
         st.write("### Opacity Distribution")
         fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
         sns.kdeplot(
@@ -223,9 +223,9 @@ def app_fasta_prediction(config):
             f"(Percentile: {o_pct:.1f}%, Diff: {o_diff:.1f}%, S-score: {o_s:.2f})"
         )
 
-        # ------------------------------------------------------------------------------------
+
         # Size Plot
-        # ------------------------------------------------------------------------------------
+
         st.write("### Size Distribution")
         fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
         sns.kdeplot(
@@ -249,9 +249,9 @@ def app_fasta_prediction(config):
             f"(Percentile: {s_pct:.1f}%, Diff: {s_diff:.1f}%, S-score: {s_s:.2f})"
         )
 
-        # ------------------------------------------------------------------------------------
+
         # PCA & SHAP Analysis
-        # ------------------------------------------------------------------------------------
+
         st.write("---")
         st.header("PCA and SHAP Analysis")
 

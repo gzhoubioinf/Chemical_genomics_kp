@@ -24,7 +24,7 @@ import numpy as np
 def colonypicker(config):
     st.title("ColonyPicker")
 
-    # Custom CSS to make the table background transparent and reduce spacing
+    # CSS to make the table background transparent and reduce spacing. just for aesthetics
     st.markdown("""
         <style>
             ul {
@@ -334,7 +334,7 @@ def get_conditions(directory):
     condition_names = set()
     for f in files:
         base_name = os.path.basename(f)
-        # remove last 19 chars: e.g. conditionX-1-1_A.JPG.grid.jpg
+        # remove last 19 chars: e.g. conditionX-1-1_A.JPG.grid.jpg - makes it easier to look through the conditions
         cond = base_name[:-19]
         condition_names.add(cond)
     return sorted(condition_names)

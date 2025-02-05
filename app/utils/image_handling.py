@@ -11,8 +11,8 @@ def extract_colony(img, row, col, num_rows=32, num_cols=48):
     img_height, img_width = img.shape[:2]
     
     # Calculate cell dimensions based on full grid size
-    cell_height = img_height / num_rows  # More precise than hardcoded 90
-    cell_width = img_width / num_cols    # More precise than hardcoded 104
+    cell_height = img_height / num_rows  
+    cell_width = img_width / num_cols 
     
     # Calculate position using floating-point precision
     x = col * cell_width
@@ -37,7 +37,7 @@ def extract_colony(img, row, col, num_rows=32, num_cols=48):
     if cell.size == 0:
         return None
 
-    # Turquoise color range detection (keep original code)
+    # Turquoise color range detection - colonies detected by iris are delineated with this color 
     lower_bound = np.array([130 - 40, 200 - 40, 70 - 40])
     upper_bound = np.array([230 + 40, 255, 180 + 40])
     lower_bound = np.clip(lower_bound, 0, 255)
@@ -53,11 +53,11 @@ def extract_colony(img, row, col, num_rows=32, num_cols=48):
     colony_contour = max(contours, key=cv2.contourArea)
     xC, yC, wC, hC = cv2.boundingRect(colony_contour)
     
-    # Recenter using actual cell dimensions
+    # Recenter
     cX = xC + wC // 2
     cY = yC + hC // 2
-    sub_center_x = cell.shape[1] // 2  # Use actual extracted cell width
-    sub_center_y = cell.shape[0] // 2  # Use actual extracted cell height
+    sub_center_x = cell.shape[1] // 2  
+    sub_center_y = cell.shape[0] // 2  
     
     shiftX = cX - sub_center_x
     shiftY = cY - sub_center_y
