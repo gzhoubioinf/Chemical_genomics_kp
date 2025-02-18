@@ -22,7 +22,7 @@ from Bio.Seq import Seq
 # Utils imports 
 from app.utils.data_loading import load_csv, load_excel
 from app.utils.image_handling import crop_img, extract_colony
-from app.utils.ml_models import load_pca_and_unitigs, load_models_for_condition, load_distributions
+from app.utils.ml_models import load_pca_and_unitigs, load_distributions
 from app.utils.gbff_processing import process_gbff
 
 warnings.filterwarnings("ignore")
@@ -55,10 +55,9 @@ def compute_stats(df, prediction):
 def app_fasta_prediction(config):
     st.title("ML Prediction")
 
-    MODEL_PATHS = config['MODEL_PATHS']
-    condition = st.selectbox("Select Condition:", list(MODEL_PATHS.keys()))
-    algorithm = st.selectbox("Select ML Algorithm:", ["XGBoost", "TabNet"])
-    
+    # ------------------------------------------------------------------
+    # Load PCA and Unitig Index (shared across models)
+    # ------------------------------------------------------------------
     with st.spinner("Loading PCA model and unitig_to_index mapping..."):
         pca, unitig_to_index = load_pca_and_unitigs(config['pca_model_file'], config['unitig_to_index_file'])
     
@@ -68,9 +67,59 @@ def app_fasta_prediction(config):
         index_to_unitig[i] = u
     num_unitigs = len(unitig_to_index)
     
-    with st.spinner(f"Loading {algorithm} models for {condition}..."):
-        model_opacity, model_circ, model_size = load_models_for_condition(algorithm, condition, MODEL_PATHS)
+    # ------------------------------------------------------------------
+    # Dynamically select ML algorithm and condition by scanning the models directory
+    # ------------------------------------------------------------------
+    models_dir = config["models_directory"]
     
+    # List available algorithms (each subfolder under models_dir)
+    available_algorithms = sorted(
+        [d for d in os.listdir(models_dir) if os.path.isdir(os.path.join(models_dir, d))]
+    )
+    if not available_algorithms:
+        st.error("No ML algorithm directories found in the models directory.")
+        return
+    algorithm = st.selectbox("Select ML Algorithm:", available_algorithms)
+    
+    # List conditions available under the selected algorithm
+    algorithm_dir = os.path.join(models_dir, algorithm)
+    available_conditions = sorted(
+        [d for d in os.listdir(algorithm_dir) if os.path.isdir(os.path.join(algorithm_dir, d))]
+    )
+    if not available_conditions:
+        st.error(f"No condition folders found for {algorithm} in {algorithm_dir}.")
+        return
+    condition = st.selectbox("Select Condition:", available_conditions)
+    
+    # ------------------------------------------------------------------
+    # Load models dynamically by searching for model files by metric
+    # ------------------------------------------------------------------
+    def load_model(metric_keyword):
+        """Search for a model file in the designated folder that matches the metric keyword in a case-insensitive manner."""
+        pattern = os.path.join(algorithm_dir, condition, "*")
+        # Search all files in the directory and filter using a case-insensitive match
+        model_files = [
+            f for f in glob.glob(pattern)
+            if metric_keyword.lower() in os.path.basename(f).lower()
+        ]
+        if not model_files:
+            st.error(f"No {metric_keyword} model found for {algorithm} under condition '{condition}'.")
+            return None
+        # If more than one file matches, take the first (or modify as needed)
+        return load(model_files[0])
+    
+    with st.spinner(f"Loading {algorithm} models for condition '{condition}'..."):
+        model_opacity = load_model("opacity")
+        model_circ = load_model("circularity")
+        model_size = load_model("size")
+    
+    if model_opacity is None or model_circ is None or model_size is None:
+        st.error("Error loading one or more models. Please check your model files.")
+        return
+
+    # ------------------------------------------------------------------
+    # Load Distribution Data
+    # ------------------------------------------------------------------
     with st.spinner("Loading distribution data..."):
         df_circ, df_opa, df_siz = load_distributions(
             config['files']['circularity_data'],
@@ -78,8 +127,11 @@ def app_fasta_prediction(config):
             config['files']['size_data']
         )
     
+    # ------------------------------------------------------------------
+    # FASTA File Uploader and Gene Matching
+    # ------------------------------------------------------------------
     uploaded_file = st.file_uploader("Upload your FASTA file:", type=["fasta"])
-    if uploaded_file is not None and model_opacity and model_circ and model_size:
+    if uploaded_file is not None:
         st.write("Processing your file...")
         
         # Check against known resistance/virulence genes
@@ -119,7 +171,7 @@ def app_fasta_prediction(config):
             st.table(df_matched_res)
         else:
             st.write("No matched resistance genes found in your FASTA.")
-
+    
         st.write("**Matched Virulence Genes:**")
         if matched_virulence_genes:
             df_matched_vir = pd.DataFrame({"Genes": matched_virulence_genes})
@@ -128,7 +180,9 @@ def app_fasta_prediction(config):
         else:
             st.write("**No matched virulence genes found in your FASTA.**")
         
-        # Convert to unitig vector and transform with the shared PCA model
+        # ------------------------------------------------------------------
+        # Unitig vector creation, PCA transformation, and predictions
+        # ------------------------------------------------------------------
         bin_vector = fasta_to_unitig_vector(uploaded_file, unitig_to_index, num_unitigs)
         bin_vector_pca = pca.transform([bin_vector])
         
@@ -143,34 +197,24 @@ def app_fasta_prediction(config):
         st.write(f"**Size:** {pred_size:.4f}")
         
         # ------------------------------------------------------------------
-        # Distribution Visualization and Statistics (style like code 1)
+        # Distribution Visualization and Statistics
         # ------------------------------------------------------------------
         st.write("---")
         st.subheader("Distribution Visualization and Statistics")
         
-        # Here we treat our single prediction as the only replicate.
-        available_reps = ["Prediction"]
-        # Order: "Circularity" -> df_circ, pred_circ; "Size" -> df_siz, pred_size; "Opacity" -> df_opa, pred_opacity
+        # For each metric, show the dataset distribution (via KDE) and overlay the prediction.
         for param, df, pred in zip(["Circularity", "Size", "Opacity"],
                                      [df_circ, df_siz, df_opa],
                                      [pred_circ, pred_size, pred_opacity]):
             st.markdown(f"<h5 style='font-size:17px; margin-bottom: 0;'>{param}</h5>", unsafe_allow_html=True)
-            # Extract the distribution data from the dataframe’s last column
             data_arr = df[df.columns[-1]].dropna().values
             mean_val = np.mean(data_arr)
             std_dev = np.std(data_arr)
-            valid_vals = [pred] if pred is not None else []
+            rep_mean = pred  # since prediction is a single value
+            n = 1
+            s_score = (rep_mean - mean_val) / (std_dev / np.sqrt(n)) if std_dev > 0 else None
     
-            if valid_vals:
-                rep_mean = np.mean(valid_vals)  # For a single value, rep_mean equals pred
-                n = len(valid_vals)
-                s_score = (rep_mean - mean_val) / (std_dev / np.sqrt(n)) if std_dev > 0 and n > 0 else None
-            else:
-                rep_mean = None
-                s_score = None
-    
-            fig, ax = plt.subplots()
-            fig.set_size_inches(5, 3)
+            fig, ax = plt.subplots(figsize=(5, 3))
     
             kde_fn = gaussian_kde(data_arr)
             x_vals = np.linspace(min(data_arr), max(data_arr), 1000)
@@ -180,24 +224,19 @@ def app_fasta_prediction(config):
             ax.axvline(mean_val, color='gray', linestyle='-.', linewidth=1.5,
                        label=f"Dataset Mean: {mean_val:.2f}")
     
-            if rep_mean is not None:
-                label_str = f"Prediction: {rep_mean:.2f}"
-                if s_score is not None:
-                    label_str += f" (S-score: {round(s_score, 2)})"
-                ax.axvline(rep_mean, color='black', linestyle='--', linewidth=1.5, label=label_str)
+            label_str = f"Prediction: {rep_mean:.2f}"
+            if s_score is not None:
+                label_str += f" (S-score: {round(s_score, 2)})"
+            ax.axvline(rep_mean, color='black', linestyle='--', linewidth=1.5, label=label_str)
     
-            # Since we have only one prediction, use a single color
-            colors = ['green']
-            for v, clr in zip(valid_vals, colors):
-                if v is not None:
-                    percentile_val = percentileofscore(data_arr, v)
-                    pct_diff = ((v - mean_val) / mean_val) * 100 if mean_val != 0 else 0
-                    y_val = kde_fn(v)
-                    ax.plot(
-                        v, y_val, 'x',
-                        color=clr, markersize=10,
-                        label=f"Prediction: {v:.2f} (Pctile: {percentile_val:.1f}%, Diff: {pct_diff:.1f}%)"
-                    )
+            percentile_val = percentileofscore(data_arr, rep_mean)
+            pct_diff = ((rep_mean - mean_val) / mean_val) * 100 if mean_val != 0 else 0
+            y_val = kde_fn(rep_mean)
+            ax.plot(
+                rep_mean, y_val, 'x',
+                color='green', markersize=10,
+                label=f"Prediction: {rep_mean:.2f} (Pctile: {percentile_val:.1f}%, Diff: {pct_diff:.1f}%)"
+            )
     
             ax.set_xlabel("Value", fontsize='x-small')
             ax.set_ylabel("Density", fontsize='x-small')
@@ -209,7 +248,7 @@ def app_fasta_prediction(config):
             st.pyplot(fig)
         
         # ------------------------------------------------------------------
-        # PCA & SHAP Analysis Section (remains unchanged)
+        # PCA & SHAP Analysis Section (only for XGBoost)
         # ------------------------------------------------------------------
         if algorithm == "XGBoost":
             st.write("---")

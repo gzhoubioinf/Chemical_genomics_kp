@@ -1,18 +1,11 @@
 project_file: "/ibex/user/hinkovn/Project_File"
 
-pca_model_file: "/ibex/user/hinkovn/Project_File/Models/pca_500_fitted_model_xg.joblib"
+pca_model_file: "/ibex/user/hinkovn/Project_File/Models/pca_transformer.joblib"
 unitig_to_index_file: "/ibex/user/hinkovn/Project_File/Models/unitig_to_index_xg.pkl"
 
-MODEL_PATHS:
-  Colistin_0.8ugml:
-    XGBoost:
-      opacity: "/ibex/user/hinkovn/Project_File/Models/pca_500_opacity_Colistin_0.8ugml"
-      circularity: "/ibex/user/hinkovn/Project_File/Models/pca_500_circularity_Colistin_0.8ugml"
-      size: "/ibex/user/hinkovn/Project_File/Models/pca_500_size_Colistin_0.8ugml"
-    TabNet:
-      opacity: "/ibex/user/hinkovn/TabNet/trained_models/TabNet_PCA_opacity_Colistin_0.8ugml.pkl"
-      circularity: "/ibex/user/hinkovn/TabNet/trained_models/TabNet_PCA_Circularity_Colistin_0.8ugml.pkl"
-      size: "/ibex/user/hinkovn/TabNet/trained_models/TabNet_PCA_Size_Colistin_0.8ugml.pkl"
+# Instead of listing all model paths here, we now point to the parent folder.
+models_directory: "/ibex/user/hinkovn/Project_File/Models"
+
 files:
   strain_file: "/ibex/user/hinkovn/Project_File/data/strain_names.csv"
   circularity_data: "/ibex/user/hinkovn/Project_File/data/dependent_median_circularity_ML.csv"
