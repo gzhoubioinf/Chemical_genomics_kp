@@ -2,7 +2,7 @@
 
 ## Overview
 
-ChemGenomicsKp is a **Streamlit-based application** for analyzing bacterial colonies. It provides both **colony picking** and **machine learning-based predictions** (from FASTA files) in a single, user-friendly interface.
+**ChemGenomicsKp is a **Streamlit-based application** for analyzing bacterial colonies. It provides both **colony picking** and **machine learning-based predictions** (from FASTA files) in a single, user-friendly interface.**
 ---
 ## Background & Purpose
 
