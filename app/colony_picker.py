@@ -90,7 +90,7 @@ def colonypicker(config):
         r_c_vals = strains_df.loc[strains_df['ID'] == strain_name, ['Row', 'Column']].values[0]
         row, col = int(r_c_vals[0]), int(r_c_vals[1])
         st.markdown(
-            f"<p style='font-size:18px;'>Strain: <b>{strain_name}</b> "
+            f"<p style='font-size:18px;'>Selected Strain: <b>{strain_name}</b> "
             f"(Row {row}, Column {col})</p>",
             unsafe_allow_html=True
         )
@@ -115,17 +115,21 @@ def colonypicker(config):
         else:
             st.write(f"No strain found for Row {row}, Column {col}.")
 
-    selected_condition = st.sidebar.selectbox("Pick one condition", conditions)
+    selected_condition = st.sidebar.selectbox("Select a condition", conditions)
+# Add the Submit button to the sidebar
+    submit_button = st.sidebar.button("Submit")
+
     available_reps = [rep for rep in replicates if replicate_available(selected_condition, rep, image_directory)]
     missing_reps = [rep for rep in replicates if rep not in available_reps]
     if missing_reps:
         st.warning(f"Missing replicates for {selected_condition}: {', '.join(missing_reps)}")
 
-    if st.button("Extract Colonies"):
+    if submit_button:
         if method == "By Strain Name":
-            st.write(f"Colonies for strain: **{strain_name}**")
+            pass  # Do nothing for strain name method since it's already displayed
         else:
             st.write(f"Colonies for Row: **{row}**, Column: **{col}**")
+
 
         (
             std_res_genes,
@@ -137,8 +141,8 @@ def colonypicker(config):
             vir_score,
             res_score
         ) = get_colony_data(row, col, amr_df, just_res_genes, res_mutations, virulence_cols)
-
         st.write("---")
+        st.subheader("Strain Information:")
         if sp:
             st.write(f"**Species**: {sp}")
         if st_type:
@@ -149,19 +153,58 @@ def colonypicker(config):
         if vir_score is not None:
             vir_color = get_color(vir_score, 5)
             st.markdown(
-                f"<p style='font-size:16px;'>Virulence Score: "
-                f"<span style='color:{vir_color};'>{vir_score}</span></p>",
-                unsafe_allow_html=True
-            )
-        if res_score is not None:
-            res_color = get_color(res_score, 3)
-            st.markdown(
-                f"<p style='font-size:16px;'>Resistance Score: "
-                f"<span style='color:{res_color};'>{res_score}</span></p>",
+                f"""
+                <div style="display: flex; align-items: center;">
+                    <div style="flex: 1;">
+                        <strong>Virulence Score:</strong> <span style="color:{vir_color};">{vir_score}</span>
+                    </div>
+                    <div>
+                        <details style="cursor: pointer; font-size: 16px; margin-left: 5px;">
+                            <summary style="list-style: none; display: inline;">ℹ️</summary>
+                            <div style="margin-top: 5px; font-size: 14px;">
+                                <strong>Virulence Score Explanation:</strong><br>
+                                - <strong>0</strong>: negative for all of yersiniabactin (ybt), colibactin (clb), aerobactin (iuc)<br>
+                                - <strong>1</strong>: yersiniabactin only<br>
+                                - <strong>2</strong>: yersiniabactin and colibactin (or colibactin only)<br>
+                                - <strong>3</strong>: aerobactin (without yersiniabactin or colibactin)<br>
+                                - <strong>4</strong>: aerobactin with yersiniabactin (without colibactin)<br>
+                                - <strong>5</strong>: yersiniabactin, colibactin and aerobactin<br> 
+                                <strong>Source:</strong> <a href="https://usegalaxy.eu/?tool_id=kleborate" target="_blank">https://usegalaxy.eu/?tool_id=kleborate</a>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+                """,
                 unsafe_allow_html=True
             )
 
+        if res_score is not None:
+            res_color = get_color(res_score, 3)
+            st.markdown(
+                f"""
+                <div style="display: flex; align-items: center;">
+                    <div style="flex: 1;">
+                        <strong>Resistance Score:</strong> <span style="color:{res_color};">{res_score}</span>
+                    </div>
+                    <div>
+                        <details style="cursor: pointer; font-size: 16px; margin-left: 5px;">
+                            <summary style="list-style: none; display: inline;">ℹ️</summary>
+                            <div style="margin-top: 5px; font-size: 14px;">
+                                <strong>Resistance Score Explanation:</strong><br>
+                                - <strong>0</strong>: no ESBL, no carbapenemase (regardless of colistin resistance)<br>
+                                - <strong>1</strong>: ESBL, no carbapenemase (regardless of colistin resistance)<br>
+                                - <strong>2</strong>: Carbapenemase without colistin resistance (regardless of ESBL genes or OmpK mutations)<br>
+                                - <strong>3</strong>: Carbapenemase with colistin resistance (regardless of ESBL genes or OmpK mutations)<br>
+                                <strong>Source:</strong> <a href="https://usegalaxy.eu/?tool_id=kleborate" target="_blank">https://usegalaxy.eu/?tool_id=kleborate</a>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
         st.write("---")
+        st.subheader("Key Genes:")
         if std_res_genes:
             st.markdown("**Resistance Genes:**")
             abx_to_genes = defaultdict(list)
@@ -175,21 +218,30 @@ def colonypicker(config):
                 table_data['Resistance Genes'].append(", ".join(genes))
             
             df_table = pd.DataFrame(table_data)
+            # Make the index start at 1
+            df_table.index = df_table.index + 1
             st.table(df_table)
         else:
             st.write("No resistance genes found.")
 
         if res_muts_:
             st.markdown("**Resistance Mutations:**")
-            st.write(", ".join(res_muts_))
+            df_mutations = pd.DataFrame({"Resistance Mutation": res_muts_})
+            df_mutations.index = df_mutations.index + 1
+            st.table(df_mutations)
         else:
             st.write("No resistance mutations found.")
 
         if vir_genes:
             st.markdown("**Virulence Genes:**")
-            st.write(", ".join(vir_genes))
+            df_virulence = pd.DataFrame({"Virulence Gene": vir_genes})
+            df_virulence.index = df_virulence.index + 1
+            st.table(df_virulence)
         else:
             st.write("No virulence genes found.")
+
+        st.write("---")
+        st.subheader("Colony Images and Metrics")
 
         rep_values = {"circularity": [], "size": [], "opacity": []}
         if len(available_reps) == 0:
@@ -207,7 +259,6 @@ def colonypicker(config):
 
                 adj_row = row - 1
                 adj_col = col - 1
-                # In colonypicker function:
                 extracted = extract_colony(plate_img, adj_row, adj_col)
 
                 if extracted is not None:
@@ -261,13 +312,16 @@ def colonypicker(config):
                     else:
                         st.write("Opacity: N/A Missing IRIS log")
 
+
+        st.write("---")
+        st.subheader("Distribution Visualization and Statistics")
         # Distribution Plots
         for param, data_arr, vals in zip(
             ["Circularity", "Size", "Opacity"],
             [circ_data_flat, size_data_flat, opa_data_flat],
             [rep_values["circularity"], rep_values["size"], rep_values["opacity"]]
         ):
-            st.subheader(param)
+            st.markdown(f"<h5 style='font-size:17px; margin-bottom: 0;'>{param}</h5>", unsafe_allow_html=True)
             mean_val = np.mean(data_arr)
             std_dev = np.std(data_arr)
             valid_vals = [v for v in vals if v is not None]
@@ -292,7 +346,7 @@ def colonypicker(config):
             ax.plot(x_vals, y_vals, color='blue', label=f"{param} KDE")
 
             ax.axvline(mean_val, color='gray', linestyle='-.', linewidth=1.5,
-                       label=f"Dataset Mean: {mean_val:.2f}")
+                    label=f"Dataset Mean: {mean_val:.2f}")
 
             if rep_mean is not None:
                 label_str = (
@@ -325,7 +379,7 @@ def colonypicker(config):
             ax.tick_params(axis='x', labelsize='x-small')
             ax.tick_params(axis='y', labelsize='x-small')
             ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-                      fontsize='small', frameon=False, handletextpad=0.5)
+                    fontsize='small', frameon=False, handletextpad=0.5)
             st.pyplot(fig)
 
 def get_conditions(directory):

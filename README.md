@@ -4,18 +4,32 @@
 
 ChemGenomicsKp is a **Streamlit-based application** for analyzing bacterial colonies. It provides both **colony picking** and **machine learning-based predictions** (from FASTA files) in a single, user-friendly interface.
 ---
+## Background & Purpose
 
-## Features
+_Klebsiella pneumoniae_ is a bacterium of global medical importance, known for causing pneumonia, urinary tract infections, and bloodstream infections—particularly in healthcare settings.
 
-### Colony Picker
-- **Extract and analyze** colonies based on strain names or grid positions.
-- **Calculate colony metrics**: opacity, circularity, and size.
-- **Visualize results** directly in the application.
+To effectively track and combat infections, it's crucial to understand both the observable behaviors of bacterial colonies and the genetic factors driving these behaviors. By combining direct observations of colony morphology (Size, Circularity, and Opacity). Colony morphology can reflect a strain’s ability to withstand antibiotics, produce biofilms, or express certain virulence factors. 
 
-### ML Prediction
-- **Upload FASTA files** to predict colony traits (opacity, circularity, size) with **pre-trained XGBoost models**.
-- **PCA & SHAP Analysis**: visualize principal components and SHAP values for deeper model interpretability.
+with genomic analysis, researchers can form a more complete picture of how strains respond to antibiotics and other stressors.  
 
+This app not only streamlines high-throughput screening but also bridges the gap between what we see in the lab and what lies within the genetic code.
+
+## The App Features:
+
+- **Colony Picker:**  
+  Colony Picker extracts images of bacterial colonies grown on agar plates and visualizes individual colonies and displays the measurements of key morphological features—such as size, circularity, and opacity—that serve as indicators of a strain’s behavior and its response to growth conditions and/or antibiotic treatments. 
+
+   - **Extract and analyze** colonies based on strain names or grid positions.
+   - **Calculate colony metrics**: opacity, circularity, and size.
+   - **Visualize results** directly in the application.
+
+- **ML Prediction (Genomic Data Analysis):**  
+  Genomic Data Analysis analyzes genomic sequences from FASTA files to detect resistance and virulence genes and predict colony characteristics using machine learning models (XGBoost and TabNet). FASTA files are plain text files that store the DNA sequences of bacterial strains. The application processes these sequences to detect resistance and virulence genes. Lastly, this genomic information is used to predict colony characteristics—linking the genetic makeup (=genotype) of the bacteria with observable traits (=phenotype) such as colony size, shape, and opacity.
+  
+  By linking genotype and phenotype, this app identifies specific genes that correlate with observable morphological traits, providing an insights into the genetic drivers of antimicrobial resistance. The predictive modeling component enables rapid assessment of strain responses to antibiotics.
+
+   - **Upload FASTA files** to predict colony traits (opacity, circularity, size) with **pre-trained XGBoost and TabNet models**.
+   - **PCA & SHAP Analysis**: visualize principal components and SHAP values for deeper model interpretability.
 ---
 
 ## File structure
@@ -52,7 +66,6 @@ ChemGenomicsKp/
 └── .gitignore
 ```
 ---
-
 
 ## The App
 
@@ -159,7 +172,7 @@ Overall, the ML-based prediction module connects **genomic information** to **ph
 
 ### Clone the Repository
 ```bash
-git clone https://github.com/notnat9/ChemGenomicsKp.git
+git clone https://github.com/notnat9/amr_genomics_kp.git
 cd ChemGenomicsKp
 ```
 
