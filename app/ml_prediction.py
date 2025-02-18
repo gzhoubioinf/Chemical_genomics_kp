@@ -36,7 +36,7 @@ def fasta_to_unitig_vector(fasta_contents, unitig_index, total_unitigs, k=31):
         sequence = str(record.seq).upper()
         seq_len = len(sequence)
         for i in range(seq_len - k + 1):
-            kmer = sequence[i:i+31]
+            kmer = sequence[i:i+k]
             if kmer in unitig_index:
                 binary_vector[unitig_index[kmer]] = 1
     return binary_vector
@@ -56,7 +56,7 @@ def app_fasta_prediction(config):
     st.title("ML Prediction")
 
     MODEL_PATHS = config['MODEL_PATHS']
-    condition = st.selectbox("Select Condition for ML models:", list(MODEL_PATHS.keys()))
+    condition = st.selectbox("Select Condition:", list(MODEL_PATHS.keys()))
     algorithm = st.selectbox("Select ML Algorithm:", ["XGBoost", "TabNet"])
     
     with st.spinner("Loading PCA model and unitig_to_index mapping..."):
@@ -110,19 +110,23 @@ def app_fasta_prediction(config):
         except Exception as e:
             st.warning(f"Could not process virulence_genes_seq.fas for virulence genes. Error: {e}")
         
-        st.write("### Matched Resistance Genes:")
+        st.write("---")
+        st.subheader("Key Genes:")
+        st.write("**Matched Resistance Genes:**")
         if matched_genes:
-            for gene in matched_genes:
-                st.write(gene)
+            df_matched_res = pd.DataFrame({"Genes": matched_genes})
+            df_matched_res.index = df_matched_res.index + 1
+            st.table(df_matched_res)
         else:
             st.write("No matched resistance genes found in your FASTA.")
-        
-        st.write("### Matched Virulence Genes:")
+
+        st.write("**Matched Virulence Genes:**")
         if matched_virulence_genes:
-            for vir_gene in matched_virulence_genes:
-                st.write(vir_gene)
+            df_matched_vir = pd.DataFrame({"Genes": matched_virulence_genes})
+            df_matched_vir.index = df_matched_vir.index + 1
+            st.table(df_matched_vir)
         else:
-            st.write("No matched virulence genes found in your FASTA.")
+            st.write("**No matched virulence genes found in your FASTA.**")
         
         # Convert to unitig vector and transform with the shared PCA model
         bin_vector = fasta_to_unitig_vector(uploaded_file, unitig_to_index, num_unitigs)
@@ -132,88 +136,84 @@ def app_fasta_prediction(config):
         pred_circ = float(model_circ.predict(bin_vector_pca)[0])
         pred_size = float(model_size.predict(bin_vector_pca)[0])
         
-        st.write("### Predictions")
+        st.write("---")
+        st.subheader("Predicted Metrics")
         st.write(f"**Opacity:** {pred_opacity:.4f}")
         st.write(f"**Circularity:** {pred_circ:.4f}")
         st.write(f"**Size:** {pred_size:.4f}")
         
-        c_mean, c_s, c_pct, c_diff = compute_stats(df_circ, pred_circ)
-        o_mean, o_s, o_pct, o_diff = compute_stats(df_opa, pred_opacity)
-        s_mean, s_s, s_pct, s_diff = compute_stats(df_siz, pred_size)
+        # ------------------------------------------------------------------
+        # Distribution Visualization and Statistics (style like code 1)
+        # ------------------------------------------------------------------
+        st.write("---")
+        st.subheader("Distribution Visualization and Statistics")
         
-        # Circularity distribution plot
-        st.write("### Circularity Distribution")
-        fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
-        sns.kdeplot(
-            df_circ[df_circ.columns[-1]], 
-            fill=True, 
-            color='skyblue', 
-            alpha=0.7, 
-            bw_method='scott',
-            ax=ax
-        )
-        ax.axvline(pred_circ, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Prediction')
-        ax.axvline(c_mean, color='gray', linestyle=':', linewidth=2, alpha=0.9, label='Dataset Mean')
-        ax.set_xlabel("Circularity")
-        ax.set_ylabel("Density")
-        ax.legend()
-        st.pyplot(fig)
+        # Here we treat our single prediction as the only replicate.
+        available_reps = ["Prediction"]
+        # Order: "Circularity" -> df_circ, pred_circ; "Size" -> df_siz, pred_size; "Opacity" -> df_opa, pred_opacity
+        for param, df, pred in zip(["Circularity", "Size", "Opacity"],
+                                     [df_circ, df_siz, df_opa],
+                                     [pred_circ, pred_size, pred_opacity]):
+            st.markdown(f"<h5 style='font-size:17px; margin-bottom: 0;'>{param}</h5>", unsafe_allow_html=True)
+            # Extract the distribution data from the dataframe’s last column
+            data_arr = df[df.columns[-1]].dropna().values
+            mean_val = np.mean(data_arr)
+            std_dev = np.std(data_arr)
+            valid_vals = [pred] if pred is not None else []
+    
+            if valid_vals:
+                rep_mean = np.mean(valid_vals)  # For a single value, rep_mean equals pred
+                n = len(valid_vals)
+                s_score = (rep_mean - mean_val) / (std_dev / np.sqrt(n)) if std_dev > 0 and n > 0 else None
+            else:
+                rep_mean = None
+                s_score = None
+    
+            fig, ax = plt.subplots()
+            fig.set_size_inches(5, 3)
+    
+            kde_fn = gaussian_kde(data_arr)
+            x_vals = np.linspace(min(data_arr), max(data_arr), 1000)
+            y_vals = kde_fn(x_vals)
+            ax.plot(x_vals, y_vals, color='blue', label=f"{param} KDE")
+    
+            ax.axvline(mean_val, color='gray', linestyle='-.', linewidth=1.5,
+                       label=f"Dataset Mean: {mean_val:.2f}")
+    
+            if rep_mean is not None:
+                label_str = f"Prediction: {rep_mean:.2f}"
+                if s_score is not None:
+                    label_str += f" (S-score: {round(s_score, 2)})"
+                ax.axvline(rep_mean, color='black', linestyle='--', linewidth=1.5, label=label_str)
+    
+            # Since we have only one prediction, use a single color
+            colors = ['green']
+            for v, clr in zip(valid_vals, colors):
+                if v is not None:
+                    percentile_val = percentileofscore(data_arr, v)
+                    pct_diff = ((v - mean_val) / mean_val) * 100 if mean_val != 0 else 0
+                    y_val = kde_fn(v)
+                    ax.plot(
+                        v, y_val, 'x',
+                        color=clr, markersize=10,
+                        label=f"Prediction: {v:.2f} (Pctile: {percentile_val:.1f}%, Diff: {pct_diff:.1f}%)"
+                    )
+    
+            ax.set_xlabel("Value", fontsize='x-small')
+            ax.set_ylabel("Density", fontsize='x-small')
+            ax.set_title(f"{param} Distribution", fontsize='small')
+            ax.tick_params(axis='x', labelsize='x-small')
+            ax.tick_params(axis='y', labelsize='x-small')
+            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
+                      fontsize='small', frameon=False, handletextpad=0.5)
+            st.pyplot(fig)
         
-        st.write(
-            f"**Dataset Mean:** {c_mean:.2f}\n"
-            f"**Prediction:** {pred_circ:.2f} (Percentile: {c_pct:.1f}%, Diff: {c_diff:.1f}%, S-score: {c_s:.2f})"
-        )
-        
-        # Opacity distribution plot
-        st.write("### Opacity Distribution")
-        fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
-        sns.kdeplot(
-            df_opa[df_opa.columns[-1]], 
-            fill=True, 
-            color='lightcoral', 
-            alpha=0.7, 
-            bw_method='scott',
-            ax=ax
-        )
-        ax.axvline(pred_opacity, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Prediction')
-        ax.axvline(o_mean, color='gray', linestyle=':', linewidth=2, alpha=0.9, label='Dataset Mean')
-        ax.set_xlabel("Opacity")
-        ax.set_ylabel("Density")
-        ax.legend()
-        st.pyplot(fig)
-        
-        st.write(
-            f"**Dataset Mean:** {o_mean:.2f}\n"
-            f"**Prediction:** {pred_opacity:.2f} (Percentile: {o_pct:.1f}%, Diff: {o_diff:.1f}%, S-score: {o_s:.2f})"
-        )
-        
-        # Size distribution plot
-        st.write("### Size Distribution")
-        fig, ax = plt.subplots(figsize=(7, 4), facecolor='white')
-        sns.kdeplot(
-            df_siz[df_siz.columns[-1]], 
-            fill=True, 
-            color='mediumseagreen', 
-            alpha=0.7, 
-            bw_method='scott',
-            ax=ax
-        )
-        ax.axvline(pred_size, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Prediction')
-        ax.axvline(s_mean, color='gray', linestyle=':', linewidth=2, alpha=0.9, label='Dataset Mean')
-        ax.set_xlabel("Size")
-        ax.set_ylabel("Density")
-        ax.legend()
-        st.pyplot(fig)
-        
-        st.write(
-            f"**Dataset Mean:** {s_mean:.2f}\n"
-            f"**Prediction:** {pred_size:.2f} (Percentile: {s_pct:.1f}%, Diff: {s_diff:.1f}%, S-score: {s_s:.2f})"
-        )
-        
-        # PCA & SHAP Analysis
+        # ------------------------------------------------------------------
+        # PCA & SHAP Analysis Section (remains unchanged)
+        # ------------------------------------------------------------------
         if algorithm == "XGBoost":
             st.write("---")
-            st.header("PCA and SHAP Analysis")
+            st.subheader("PCA and SHAP Analysis")
             num_pcs = st.number_input(
                 "Select number of top PCs to display (max 50):",
                 min_value=1,
@@ -228,10 +228,10 @@ def app_fasta_prediction(config):
                     explainer_opacity = shap.TreeExplainer(model_opacity)
                     shap_values_opacity = explainer_opacity.shap_values(bin_vector_pca)
                     shap_vals_for_sample = shap_values_opacity[0]
-
+    
                 abs_shap = np.abs(shap_vals_for_sample)
                 top_pc_indices = np.argsort(abs_shap)[::-1][:num_pcs]
-
+    
                 n_top_unitigs = 5
                 pc_to_unitigs = {}
                 for pc_idx in top_pc_indices:
@@ -240,7 +240,7 @@ def app_fasta_prediction(config):
                     top_idxs = np.argsort(abs_loadings)[::-1][:n_top_unitigs]
                     top_unitigs = [index_to_unitig[i] for i in top_idxs]
                     pc_to_unitigs[pc_idx] = top_unitigs
-
+    
                 with st.spinner("Processing reference genome..."):
                     matches = process_gbff(
                         config['files']['reference_gbff'],
@@ -249,19 +249,19 @@ def app_fasta_prediction(config):
                         index_to_unitig,
                         unitig_to_index
                     )
-
+    
                 pc_to_genes = defaultdict(set)
                 for pc_num, unitig, gene in matches:
                     if gene != "Unknown":
                         pc_to_genes[pc_num].add(gene)
-
+    
                 pc_numbers = [
                     f"PC{pc_idx + 1} => {', '.join(list(pc_to_genes.get(pc_idx + 1, []))[:3]) or 'noGene'}"
                     for pc_idx in top_pc_indices
                 ]
                 shap_values_top = shap_vals_for_sample[top_pc_indices]
-
-                st.write("### SHAP Values with PC-to-Gene Mappings")
+    
+                st.write("**SHAP Values with PC-to-Gene Mappings**")
                 plt.figure(figsize=(10, max(6, num_pcs * 0.4)), facecolor='white')
                 bar_colors = sns.color_palette("coolwarm", n_colors=len(shap_values_top))
                 plt.barh(pc_numbers, shap_values_top, color=bar_colors)
@@ -278,4 +278,3 @@ def app_fasta_prediction(config):
                 "SHAP’s TreeExplainer is specifically optimized for tree models (such as XGB) and works with them. "
                 "TabNet is not a tree-based model."
             )
-
