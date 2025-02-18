@@ -216,6 +216,9 @@ Size Calculation:
 ### Configuration
 Update `config/config.yaml` with correct paths
 
+## Addition of more trained models
+Possible by creating a new sub-folder in the ML Algorithm folder (e.g. Models/XGBoost/new trained condition)
+
 ## Usage
 
 
