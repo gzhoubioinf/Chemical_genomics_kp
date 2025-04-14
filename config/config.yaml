@@ -13,9 +13,12 @@ files:
   opacity_data: "/ibex/user/hinkovn/Project_File/data/dependent_median_opacity_ML.csv"
   amr_data: "/ibex/user/hinkovn/Project_File/data/combined_amr_kleborate_ast_with_14thAug_iris.tsv"
   gene_antibiotics: "/ibex/user/hinkovn/Project_File/data/resist_genes.json"
-  reference_gbff: "/ibex/user/hinkovn/Project_File/data/reference.gbk.gb"
+  reference_gbff: "/ibex/user/hinkovn/Project_File/data/pan_genome_reference.fa"
   all_fsa: "/ibex/user/hinkovn/Project_File/data/resistance_genes_seq.fsa"
   vfdb_fas: "/ibex/user/hinkovn/Project_File/data/virulence_genes_seq.fas"
+  panaroo_csv: "/ibex/user/hinkovn/Project_File/data/panaroo_gene_presence_absence.csv"
+  go_obo_file: "/ibex/user/hinkovn/Project_File/data/go-basic.obo"
+  kp_go_tsv: "/ibex/user/hinkovn/Project_File/data/uniprotkb_573.tsv"
 
 directories:
   image_directory: "/ibex/user/hinkovn/Project_File/data/plate_images/"

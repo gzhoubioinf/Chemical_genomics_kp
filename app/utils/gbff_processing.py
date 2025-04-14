@@ -4,6 +4,7 @@ import streamlit as st
 from Bio import SeqIO
 from Bio.Seq import Seq
 from collections import defaultdict
+import pandas as pd
 
 def find_all_occurrences(sequence, subseq):
     """
@@ -53,60 +54,86 @@ def extract_genes(overlap_hits):
 
 def process_gbff(gbff_path, target_unitigs, pca, index_to_unitig, unitig_to_index):
     """
-    Process a single .gbff file and return a list of tuples:
-    (PC_number, Unitig, Gene)
+    Process a FASTA (reference) file and return a list of tuples:
+    (PC_number, Unitig, Reference_ID).
+
+    This searches both forward and reverse complement of the reference.
     """
     matches = []
     try:
-        all_ref_records = list(SeqIO.parse(gbff_path, "genbank"))
+        all_ref_records = list(SeqIO.parse(gbff_path, "fasta"))
     except Exception as e:
-        st.warning(f"  [WARNING] Could not parse {gbff_path} as GenBank: {e}")
+        st.warning(f"  [WARNING] Could not parse {gbff_path} as FASTA: {e}")
         return matches
 
     if not all_ref_records:
-        st.warning(f"  [WARNING] No GenBank records in {gbff_path}, skipping.")
+        st.warning(f"  [WARNING] No FASTA records in {gbff_path}, skipping.")
         return matches
 
     for rec in all_ref_records:
         rec_id = rec.id
         forward_seq_str = str(rec.seq).upper()
         revcomp_seq_str = str(rec.seq.reverse_complement()).upper()
-        rec_feats = rec.features
 
         for pc_idx, unitigs in target_unitigs.items():
             for utg in unitigs:
                 utg_revcomp = str(Seq(utg).reverse_complement())
-                # (A) forward ref, forward unitig
-                for pos in find_all_occurrences(forward_seq_str, utg):
-                    overlap_hits = get_overlapping_genes(rec_feats, pos, pos + len(utg) - 1)
-                    genes = extract_genes(overlap_hits)
-                    for gene in genes:
-                        matches.append((pc_idx + 1, utg, gene))
 
-                # (B) forward ref, revcomp unitig
-                for pos in find_all_occurrences(forward_seq_str, utg_revcomp):
-                    overlap_hits = get_overlapping_genes(rec_feats, pos, pos + len(utg_revcomp) - 1)
-                    genes = extract_genes(overlap_hits)
-                    for gene in genes:
-                        matches.append((pc_idx + 1, utg, gene))
+                # Search forward ref for utg or its revcomp
+                for _ in find_all_occurrences(forward_seq_str, utg):
+                    matches.append((pc_idx + 1, utg, rec_id))
+                for _ in find_all_occurrences(forward_seq_str, utg_revcomp):
+                    matches.append((pc_idx + 1, utg, rec_id))
 
-                # (C) reverse-comp ref, forward unitig
-                for pos in find_all_occurrences(revcomp_seq_str, utg):
-                    L = len(forward_seq_str)
-                    fwd_start = L - (pos + len(utg))
-                    fwd_end   = L - pos - 1
-                    overlap_hits = get_overlapping_genes(rec_feats, fwd_start, fwd_end)
-                    genes = extract_genes(overlap_hits)
-                    for gene in genes:
-                        matches.append((pc_idx + 1, utg, gene))
+                # Search reverse ref for utg or its revcomp
+                for _ in find_all_occurrences(revcomp_seq_str, utg):
+                    matches.append((pc_idx + 1, utg, rec_id))
+                for _ in find_all_occurrences(revcomp_seq_str, utg_revcomp):
+                    matches.append((pc_idx + 1, utg, rec_id))
 
-                # (D) reverse-comp ref, revcomp unitig
-                for pos in find_all_occurrences(revcomp_seq_str, utg_revcomp):
-                    L = len(forward_seq_str)
-                    fwd_start = L - (pos + len(utg_revcomp))
-                    fwd_end   = L - pos - 1
-                    overlap_hits = get_overlapping_genes(rec_feats, fwd_start, fwd_end)
-                    genes = extract_genes(overlap_hits)
-                    for gene in genes:
-                        matches.append((pc_idx + 1, utg, gene))
     return matches
+
+
+def load_panaroo_csv(filepath):
+    """
+    Loads the Panaroo gene_presence_absence.csv,
+    building a dict: cluster_id -> single short gene name.
+
+    We assume columns: "Gene", "Non-unique Gene name", "Annotation".
+    If "Non-unique Gene name" has multiple semicolon-separated entries,
+    we pick the first. If that is empty or also 'group_XXXX',
+    we fall back to "Annotation". If that's also not helpful,
+    we revert to the cluster ID itself.
+    """
+    df = pd.read_csv(filepath)
+    map_dict = {}
+
+    for i, row in df.iterrows():
+        cluster_id = str(row["Gene"])  # e.g. "group_14521" or "rplL"
+        nonunique = str(row["Non-unique Gene name"])
+        annotation = str(row["Annotation"])
+
+        def is_blank_or_nan(s):
+            if not s or s.strip().lower() in ["nan", ""]:
+                return True
+            return False
+
+        short_name = None
+        if not is_blank_or_nan(nonunique):
+            splitted = [x.strip() for x in nonunique.split(';') if x.strip()]
+            first_nonunique = splitted[0] if splitted else ""
+            if first_nonunique and not first_nonunique.startswith("group_"):
+                short_name = first_nonunique
+
+        if not short_name:
+            if not is_blank_or_nan(annotation) and not annotation.lower().startswith("hypothetical"):
+                short_name = annotation.split()[0].strip()
+
+        if not short_name or short_name.startswith("group_"):
+            short_name = cluster_id
+
+        map_dict[cluster_id] = short_name
+
+    return map_dict
+
+

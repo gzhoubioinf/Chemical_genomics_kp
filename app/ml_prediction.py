@@ -8,6 +8,7 @@ import io
 import cv2
 import xgboost as xgb
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors 
 import seaborn as sns
 from scipy.stats import percentileofscore, gaussian_kde
 from Bio import SeqIO
@@ -23,7 +24,8 @@ from Bio.Seq import Seq
 from app.utils.data_loading import load_csv, load_excel
 from app.utils.image_handling import crop_img, extract_colony
 from app.utils.ml_models import load_pca_and_unitigs, load_distributions
-from app.utils.gbff_processing import process_gbff
+from app.utils.gbff_processing import process_gbff, load_panaroo_csv
+from app.utils.go import run_go_enrichment, load_kp_go_tsv, plot_go_dag
 
 warnings.filterwarnings("ignore")
 
@@ -59,7 +61,10 @@ def app_fasta_prediction(config):
     # Load PCA and Unitig Index (shared across models)
     # ------------------------------------------------------------------
     with st.spinner("Loading PCA model and unitig_to_index mapping..."):
-        pca, unitig_to_index = load_pca_and_unitigs(config['pca_model_file'], config['unitig_to_index_file'])
+        pca, unitig_to_index = load_pca_and_unitigs(
+            config['pca_model_file'], 
+            config['unitig_to_index_file']
+        )
     
     # Prepare reverse index for unitigs
     index_to_unitig = [None] * len(unitig_to_index)
@@ -128,6 +133,30 @@ def app_fasta_prediction(config):
         )
     
     # ------------------------------------------------------------------
+    # (Optional) Load additional annotation files for GO analysis, Panaroo, etc.
+    # ------------------------------------------------------------------
+    id_to_anno = {}
+    if 'panaroo_csv' in config['files']:
+        with st.spinner("Loading Panaroo gene_presence_absence.csv..."):
+            try:
+                panaroo_csv_path = config['files']['panaroo_csv']
+                id_to_anno = load_panaroo_csv(panaroo_csv_path)
+            except Exception as e:
+                st.warning(f"Could not load Panaroo CSV file: {e}")
+                id_to_anno = {}
+
+    # For GO analysis, load cugene->GO mapping if available
+    gene2gos = {}
+    if 'kp_go_tsv' in config['files']:
+        try:
+            gene2gos = load_kp_go_tsv(config['files']['kp_go_tsv'])
+        except Exception as e:
+            st.warning(f"Could not load KP GO TSV: {e}")
+            gene2gos = {}
+    
+    go_obo_file = config['files'].get('go_obo_file', None)
+
+    # ------------------------------------------------------------------
     # FASTA File Uploader and Gene Matching
     # ------------------------------------------------------------------
     uploaded_file = st.file_uploader("Upload your FASTA file:", type=["fasta"])
@@ -183,7 +212,11 @@ def app_fasta_prediction(config):
         # ------------------------------------------------------------------
         # Unitig vector creation, PCA transformation, and predictions
         # ------------------------------------------------------------------
-        bin_vector = fasta_to_unitig_vector(uploaded_file, unitig_to_index, num_unitigs)
+        bin_vector = fasta_to_unitig_vector(
+            uploaded_file, 
+            unitig_to_index, 
+            num_unitigs
+        )
         bin_vector_pca = pca.transform([bin_vector])
         
         pred_opacity = float(model_opacity.predict(bin_vector_pca)[0])
@@ -197,23 +230,48 @@ def app_fasta_prediction(config):
         st.write(f"**Size:** {pred_size:.4f}")
         
         # ------------------------------------------------------------------
-        # Distribution Visualization and Statistics
+        # Distribution Visualization, Statistics and PCA SHAP Analysis
         # ------------------------------------------------------------------
         st.write("---")
-        st.subheader("Distribution Visualization and Statistics")
+        st.subheader("Distribution Visualization, Statistics and PCA SHAP Analysis")
+        st.write(
+            "Note: The reference distributions are derived solely "
+            "from our internal lab dataset and may not fully represent the variability "
+            "seen in external samples."
+        )
         
-        # For each metric, show the dataset distribution (via KDE) and overlay the prediction.
-        for param, df, pred in zip(["Circularity", "Size", "Opacity"],
-                                     [df_circ, df_siz, df_opa],
-                                     [pred_circ, pred_size, pred_opacity]):
-            st.markdown(f"<h5 style='font-size:17px; margin-bottom: 0;'>{param}</h5>", unsafe_allow_html=True)
+        # (Optional) If using XGBoost, get number of top PCs to display for each parameter
+        if algorithm == "XGBoost":
+            num_pcs = st.number_input(
+                "Select number of top PCs to display for each parameter (max 50):",
+                min_value=1,
+                max_value=50,
+                value=10,
+                step=1
+            )
+        
+        # Initialize a global set for gene names across parameters (for GO analysis)
+        combined_genes = set()
+        # Initialize a dictionary to store matched genes per parameter
+        matched_genes_by_param = {}
+
+        # Iterate through each parameter
+        for param, df, pred in zip(
+            ["Circularity", "Size", "Opacity"],
+            [df_circ, df_siz, df_opa],
+            [pred_circ, pred_size, pred_opacity]
+        ):
+            st.markdown(
+                f"<h5 style='font-size:17px; margin-bottom: 0;'>{param}</h5>", 
+                unsafe_allow_html=True
+            )
             data_arr = df[df.columns[-1]].dropna().values
             mean_val = np.mean(data_arr)
             std_dev = np.std(data_arr)
-            rep_mean = pred  # since prediction is a single value
+            rep_mean = pred  # the prediction for the parameter
             n = 1
             s_score = (rep_mean - mean_val) / (std_dev / np.sqrt(n)) if std_dev > 0 else None
-    
+
             fig, ax = plt.subplots(figsize=(5, 3))
     
             kde_fn = gaussian_kde(data_arr)
@@ -243,77 +301,182 @@ def app_fasta_prediction(config):
             ax.set_title(f"{param} Distribution", fontsize='small')
             ax.tick_params(axis='x', labelsize='x-small')
             ax.tick_params(axis='y', labelsize='x-small')
-            ax.legend(loc='center left', bbox_to_anchor=(1, 0.5),
-                      fontsize='small', frameon=False, handletextpad=0.5)
-            st.pyplot(fig)
-        
-        # ------------------------------------------------------------------
-        # PCA & SHAP Analysis Section (only for XGBoost)
-        # ------------------------------------------------------------------
-        if algorithm == "XGBoost":
-            st.write("---")
-            st.subheader("PCA and SHAP Analysis")
-            num_pcs = st.number_input(
-                "Select number of top PCs to display (max 50):",
-                min_value=1,
-                max_value=50,
-                value=10,
-                step=1
+            ax.legend(
+                loc='center left', 
+                bbox_to_anchor=(1, 0.5),
+                fontsize='small', 
+                frameon=False, 
+                handletextpad=0.5
             )
-            if num_pcs > 50:
-                st.error("Maximum = 50.")
-            else:
-                with st.spinner("Computing SHAP values..."):
-                    explainer_opacity = shap.TreeExplainer(model_opacity)
-                    shap_values_opacity = explainer_opacity.shap_values(bin_vector_pca)
-                    shap_vals_for_sample = shap_values_opacity[0]
-    
+            st.pyplot(fig)
+            
+            # ------------------------------------------------------------------
+            # PCA SHAP Analysis for each parameter (only if using XGBoost)
+            # ------------------------------------------------------------------
+            if algorithm == "XGBoost":
+                # Select the correct model for the parameter
+                if param == "Opacity":
+                    model = model_opacity
+                elif param == "Circularity":
+                    model = model_circ
+                elif param == "Size":
+                    model = model_size
+                
+                with st.spinner(f"Computing SHAP values for {param}..."):
+                    explainer = shap.TreeExplainer(model)
+                    shap_values_param = explainer.shap_values(bin_vector_pca)
+                    shap_vals_for_sample = shap_values_param[0]
+                
                 abs_shap = np.abs(shap_vals_for_sample)
                 top_pc_indices = np.argsort(abs_shap)[::-1][:num_pcs]
-    
                 n_top_unitigs = 5
                 pc_to_unitigs = {}
                 for pc_idx in top_pc_indices:
                     loadings = pca.components_[pc_idx, :]
-                    abs_loadings = np.abs(loadings)
-                    top_idxs = np.argsort(abs_loadings)[::-1][:n_top_unitigs]
-                    top_unitigs = [index_to_unitig[i] for i in top_idxs]
+                    # Multiply loadings by the binary unitig vector to zero out unitigs not present
+                    relevant_score = loadings * bin_vector
+                    abs_score = np.abs(relevant_score)
+                    sorted_idx = np.argsort(abs_score)[::-1]
+                    filtered_top_idx = [idx for idx in sorted_idx if bin_vector[idx] == 1][:n_top_unitigs]
+                    top_unitigs = [index_to_unitig[i] for i in filtered_top_idx]
                     pc_to_unitigs[pc_idx] = top_unitigs
-    
-                with st.spinner("Processing reference genome..."):
-                    matches = process_gbff(
-                        config['files']['reference_gbff'],
-                        pc_to_unitigs,
-                        pca,
-                        index_to_unitig,
-                        unitig_to_index
-                    )
-    
+                
+                # Process the reference genome to map PCs to genes
+                matches = process_gbff(
+                    config['files']['reference_gbff'],
+                    pc_to_unitigs,
+                    pca,
+                    index_to_unitig,
+                    unitig_to_index
+                )
+                
+                # Create a mapping from PC (using PC number: pc_idx+1) to genes and collect genes
                 pc_to_genes = defaultdict(set)
                 for pc_num, unitig, gene in matches:
                     if gene != "Unknown":
                         pc_to_genes[pc_num].add(gene)
-    
-                pc_numbers = [
-                    f"PC{pc_idx + 1} => {', '.join(list(pc_to_genes.get(pc_idx + 1, []))[:3]) or 'noGene'}"
-                    for pc_idx in top_pc_indices
-                ]
+                for genes in pc_to_genes.values():
+                    combined_genes.update(genes)
+                
+                # Build label strings for the SHAP bar chart
+                pc_labels = []
+                for i, pc_idx in enumerate(top_pc_indices):
+                    pcnum = pc_idx + 1  # using 1-indexed for display
+                    genes_found = list(pc_to_genes.get(pcnum, []))
+                    annotated_list = [id_to_anno.get(gene_id, gene_id) for gene_id in genes_found]
+                    short_label_list = annotated_list[:3]
+                    if not short_label_list:
+                        label_str = f"PC{pcnum} => noGene"
+                    else:
+                        label_str = f"PC{pcnum} => {', '.join(short_label_list)}"
+                    pc_labels.append(label_str)
                 shap_values_top = shap_vals_for_sample[top_pc_indices]
-    
-                st.write("**SHAP Values with PC-to-Gene Mappings**")
-                plt.figure(figsize=(10, max(6, num_pcs * 0.4)), facecolor='white')
-                bar_colors = sns.color_palette("coolwarm", n_colors=len(shap_values_top))
-                plt.barh(pc_numbers, shap_values_top, color=bar_colors)
-                plt.axvline(x=0, color="black", linestyle="--", linewidth=1.0, alpha=0.8)
-                plt.xlabel("SHAP value (impact on model output)", fontsize=12)
-                plt.title("Opacity Model - SHAP with Top PC-to-Gene Mappings", fontsize=14)
+
+                # Use a diverging colormap centered at zero:
+                cmap = plt.cm.RdBu_r  # Red to Blue, reversed; negative values will be blue, positive red.
+                vmin = shap_values_top.min()
+                vmax = shap_values_top.max()
+                norm = colors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
+                bar_colors = [cmap(norm(val)) for val in shap_values_top]
+
+                # Plot the SHAP bar chart with the new color mapping
+                fig_shap, ax_shap = plt.subplots(figsize=(5, max(3, num_pcs * 0.4)))
+                ax_shap.barh(pc_labels, shap_values_top, color=bar_colors)
+                ax_shap.axvline(x=0, color="black", linestyle="--", linewidth=1.0, alpha=0.8)
+                ax_shap.set_xlabel("SHAP value (impact on model output)", fontsize='small')
+                ax_shap.set_title(f"{param} Model - SHAP with Top PC-to-Gene Mappings", fontsize='small')
+                ax_shap.tick_params(axis='both', labelsize='x-small')
                 plt.tight_layout()
-                st.pyplot(plt)
-        else:
+                st.pyplot(fig_shap, use_container_width=True)
+                
+                # -----------------------------------------------------------------
+                # Store matched genes for printing later (per parameter)
+                # -----------------------------------------------------------------
+                temp_mapping = {}
+                for pc_idx in top_pc_indices:
+                    pcnum = pc_idx + 1  # 1-indexed for display
+                    cluster_ids = pc_to_genes.get(pcnum, set())
+                    # Convert cluster IDs to annotated gene names (if available)
+                    annotated_list = [id_to_anno.get(cid, cid) for cid in cluster_ids]
+                    temp_mapping[f"PC{pcnum}"] = annotated_list
+                matched_genes_by_param[param] = temp_mapping
+            else:
+                st.info("SHAP analysis not implemented for non-XGBoost algorithms.")
+        
+        # ------------------------------------------------------------------
+        # Matched Genes (from SHAP Analysis) - Print All Parameters Together
+        # ------------------------------------------------------------------
+        if algorithm == "XGBoost" and matched_genes_by_param:
             st.write("---")
-            st.header("SHAP Analysis Not Implemented for TabNet")
-            st.write(
-                "Currently, the SHAP explanation is only demonstrated for XGBoost. "
-                "SHAP’s TreeExplainer is specifically optimized for tree models (such as XGB) and works with them. "
-                "TabNet is not a tree-based model."
-            )
+            st.subheader("Matched Genes from SHAP Analysis (per parameter)")
+            for param, gene_mapping in matched_genes_by_param.items():
+                st.markdown(f"### {param}")
+                for pc_label, genes in gene_mapping.items():
+                    if genes:
+                        gene_str = ", ".join(genes)
+                        st.write(f"**{pc_label}** -> {gene_str}")
+                    else:
+                        st.write(f"**{pc_label}** -> No genes matched.")
+        
+        # ------------------------------------------------------------------
+        # GO Enrichment Analysis (Unified for all parameters)
+        # ------------------------------------------------------------------
+        st.write("---")
+        st.subheader("GO Enrichment Analysis")
+    
+        if not combined_genes:
+            st.write("No gene names identified for GO Enrichment.")
+        else:
+            # Convert combined_genes to a list
+            all_matched_gene_names = list(combined_genes)
+            
+            # Perform flexible gene name matching
+            with st.spinner("Performing flexible gene name matching..."):
+                flexible_study_genes = set()
+                for user_gene in all_matched_gene_names:
+                    user_gene_str = user_gene.strip().lower()
+                    # Create a mapping from lowercased, stripped keys to original keys
+                    dict_keys_lower = {k.lower().strip(): k for k in gene2gos.keys()}
+                    if user_gene_str in dict_keys_lower:
+                        # Exact match after lowercasing and stripping
+                        matched_key = dict_keys_lower[user_gene_str]
+                        flexible_study_genes.add(matched_key)
+                    else:
+                        # Check for partial matches (substring in either direction)
+                        for dict_gene_name in gene2gos.keys():
+                            dict_gene_str = dict_gene_name.lower().strip()
+                            if (user_gene_str in dict_gene_str) or (dict_gene_str in user_gene_str):
+                                flexible_study_genes.add(dict_gene_name)
+                study_genes = list(flexible_study_genes)
+            
+            if not study_genes:
+                st.write("None of the matched genes have GO annotations (even with flexible matching).")
+            else:
+                with st.spinner("Running GO Enrichment Analysis..."):
+                    results = run_go_enrichment(study_genes, gene2gos, go_obo_file, alpha=0.05)
+                filtered_results = [r for r in results if r.study_count > 0 and r.p_fdr_bh < 1]
+                enriched_terms = [r for r in filtered_results if r.p_fdr_bh <= 0.05]
+
+                if not enriched_terms:
+                    st.write("No enriched GO terms found with these genes (FDR-BH <= 0.05).")
+                else:
+                    rows = []
+                for r in enriched_terms:
+                    rows.append({
+                        "GO Term": r.goterm.name,
+                        "GO ID": r.goterm.id,
+                        "p_uncorrected": r.p_uncorrected,
+                        "p_fdr_bh": r.p_fdr_bh,
+                        "pop_count": r.pop_count,
+                    })
+                df_go = pd.DataFrame(rows).sort_values("p_fdr_bh")
+                st.write("**GO Enrichment Results** (FDR-BH <= 0.05)")
+                st.table(df_go)
+    
+                st.write("---")
+                st.subheader("GO DAG Diagram")
+                fig_dag = plot_go_dag(enriched_terms, go_obo_file)
+                if fig_dag:
+                    st.pyplot(fig_dag)
+                else:
+                    st.write("Unable to generate DAG diagram for enriched terms.")
