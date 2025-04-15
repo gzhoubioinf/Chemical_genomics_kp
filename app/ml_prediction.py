@@ -403,20 +403,20 @@ def app_fasta_prediction(config):
             else:
                 st.info("SHAP analysis not implemented for non-XGBoost algorithms.")
         
-        # ------------------------------------------------------------------
-        # Matched Genes (from SHAP Analysis) - Print All Parameters Together
-        # ------------------------------------------------------------------
-        if algorithm == "XGBoost" and matched_genes_by_param:
-            st.write("---")
-            st.subheader("Matched Genes from SHAP Analysis (per parameter)")
-            for param, gene_mapping in matched_genes_by_param.items():
-                st.markdown(f"### {param}")
-                for pc_label, genes in gene_mapping.items():
-                    if genes:
-                        gene_str = ", ".join(genes)
-                        st.write(f"**{pc_label}** -> {gene_str}")
-                    else:
-                        st.write(f"**{pc_label}** -> No genes matched.")
+        # # ------------------------------------------------------------------
+        # # Matched Genes (from SHAP Analysis) - Print All Parameters Together
+        # # ------------------------------------------------------------------
+        # if algorithm == "XGBoost" and matched_genes_by_param:
+        #     st.write("---")
+        #     st.subheader("Matched Genes from SHAP Analysis (per parameter)")
+        #     for param, gene_mapping in matched_genes_by_param.items():
+        #         st.markdown(f"### {param}")
+        #         for pc_label, genes in gene_mapping.items():
+        #             if genes:
+        #                 gene_str = ", ".join(genes)
+        #                 st.write(f"**{pc_label}** -> {gene_str}")
+        #             else:
+        #                 st.write(f"**{pc_label}** -> No genes matched.")
         
         # ------------------------------------------------------------------
         # GO Enrichment Analysis (Unified for all parameters)
