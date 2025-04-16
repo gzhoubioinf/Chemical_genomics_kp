@@ -404,7 +404,7 @@ def app_fasta_prediction(config):
                 st.info("SHAP analysis not implemented for non-XGBoost algorithms.")
         
         # # ------------------------------------------------------------------
-        # # Matched Genes (from SHAP Analysis) - Print All Parameters Together
+        # # Matched Genes from shap - for debugging mostly
         # # ------------------------------------------------------------------
         # if algorithm == "XGBoost" and matched_genes_by_param:
         #     st.write("---")

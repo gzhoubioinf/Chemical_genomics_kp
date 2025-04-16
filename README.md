@@ -30,6 +30,7 @@ This app not only streamlines high-throughput screening but also bridges the gap
 
    - **Upload FASTA files** to predict colony traits (opacity, circularity, size) with **pre-trained XGBoost and TabNet models**.
    - **PCA & SHAP Analysis**: visualize principal components and SHAP values for deeper model interpretability.
+   - **GO Enrichment Analysis**: to visualize the biological significance of genes influencing the ML predictions.
 ---
 
 ## File structure
@@ -157,6 +158,14 @@ In addition to colony image analysis, the application offers **machine learning 
 
 7. **Resistance & Virulence Genes**  
    - The application  checks for known **resistance** and **virulence** genes by comparing against local reference databases.
+
+8. **Gene Ontology (GO) Enricgment Analysis**
+   - The application performs Gene Ontology (GO) enrichment analysis using the GOATOOLS Python package to interpret the biological significance of genes influencing the ML predictions.  This feature helps users understand which biological processes or molecular functions, are significantly overrepresented in the genes associated with impactful principal components.
+
+   A gene-to-GO mapping file (in TSV format) was downloaded from https://www.uniprot.org/uniprotkb?query=%28taxonomy_id%3A573%29. Additionally, an OBO (Open Biomedical Ontologies) file was downloaded from https://lpalbou.github.io/docs/download-ontology/ and used to match the GO IDs for identified genes with the GO terms/descriptions. 
+
+   Both files are available in the "Data" folder
+
 
 
 Overall, the ML-based prediction module connects **genomic information** to **phenotypic traits** , making it easy to hypothesize how certain genetic features might affect colony characyeristics under specific growth conditions.
