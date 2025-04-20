@@ -162,7 +162,8 @@ In addition to colony image analysis, the application offers **machine learning 
 8. **Gene Ontology (GO) Enricgment Analysis**
    - The application performs Gene Ontology (GO) enrichment analysis using the GOATOOLS Python package to interpret the biological significance of genes influencing the ML predictions.  This feature helps users understand which biological processes or molecular functions, are significantly overrepresented in the genes associated with impactful principal components.
 
-   A gene-to-GO mapping file (in TSV format) was downloaded from https://www.uniprot.org/uniprotkb?query=%28taxonomy_id%3A573%29. Additionally, an OBO (Open Biomedical Ontologies) file was downloaded from https://lpalbou.github.io/docs/download-ontology/ and used to match the GO IDs for identified genes with the GO terms/descriptions. 
+   - *Only available for XGBoost model* 
+   - A gene-to-GO mapping file (in TSV format) was downloaded from https://www.uniprot.org/uniprotkb?query=%28taxonomy_id%3A573%29. Additionally, an OBO (Open Biomedical Ontologies) file was downloaded from https://lpalbou.github.io/docs/download-ontology/ and used to match the GO IDs for identified genes with the GO terms/descriptions. 
 
    Both files are available in the "Data" folder
 
@@ -223,7 +224,8 @@ Size Calculation:
 
 ---
 ### Configuration
-Update `config/config.yaml` with correct paths
+- Update `config/config.yaml` with correct paths
+- Update the config path in `app/main.py`
 
 ## Addition of more trained models
 Possible by creating a new sub-folder in the ML Algorithm folder (e.g. Models/XGBoost/new trained condition)
@@ -287,12 +289,12 @@ python cli/amr_genomics_cli.py ml_prediction \
 ### Run with Docker
 1. Pull the pre-built image:
 ```bash
-docker pull hinkovn/my_streamlit_app_v5:test
+docker pull docker pull hinkovn/app_final
 ```
 
 2. Start the container:
 ```bash
-docker run -p 8501:8501 --name chemgenomics-app hinkovn/my_streamlit_app_v5:test
+docker run -p 8501:8501 hinkovn/app_final   
 ```
 
 3. Access the application:
@@ -304,7 +306,7 @@ http://localhost:8501
 1. **Pull Image:**
    - Open Docker Desktop
    - Go to Images > Pull
-   - Enter `hinkovn/my_streamlit_app_v5:test`
+   - Enter `docker pull hinkovn/app_final`
 
 2. **Run Container:**
    - Find the image in your Images list
@@ -317,6 +319,8 @@ http://localhost:8501
    - Stop: Click ●■ icon in Containers tab
    - Remove: Click 🗑️ icon after stopping
 
+
+**NOTE:** Increase the Docker Container's memory on your docker desktop settings from the default 8GB to 16GB (Settings -> Resources)
 ### Advantages
 - No manual model file downloads
 - Pre-configured environment
@@ -324,15 +328,3 @@ http://localhost:8501
 - Single-command updates
 - Isolated from system packages
 
-
-### Maintenance
-```bash
-# Update to latest version
-docker pull hinkovn/my_streamlit_app_v5:test
-
-# Remove old containers
-docker rm chemgenomics-app
-
-# View logs
-docker logs chemgenomics-app
-```
