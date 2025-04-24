@@ -288,11 +288,12 @@ python cli/amr_genomics_cli.py ml_prediction \
 
 ### Run with Docker
 1. Pull the pre-built image:
+-  Open the terminal in Docker (lower right corner)
 ```bash
-docker pull docker pull hinkovn/app_final
+docker pull hinkovn/app_final
 ```
 
-2. Start the container:
+2. Start the container: 
 ```bash
 docker run -p 8501:8501 hinkovn/app_final   
 ```

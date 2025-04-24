@@ -9,7 +9,20 @@ import pandas as pd
 def find_all_occurrences(sequence, subseq):
     """
     Generator to find all occurrences of subseq in sequence.
-    Yields the starting index of each occurrence.
+    Yield every start index at which *subseq* appears in *sequence*.
+
+    This is a simple, overlap‑aware generator that repeatedly calls
+    `str.find()` starting one nucleotide past the previous hit, so even
+    overlapping matches are reported.
+
+    Args:
+        sequence (str): The larger string to search (e.g. a chromosome).
+        subseq   (str): The motif or k‑mer to locate.
+
+    Yields:
+          Yield every position where *subseq* starts inside *sequence*.
+    Lets you get overlapping hits as well.
+    
     """
     start = 0
     while True:
@@ -21,8 +34,9 @@ def find_all_occurrences(sequence, subseq):
 
 def get_overlapping_genes(features, start_pos, end_pos):
     """
-    Return a list of gene-locus_tag pairs overlapping with [start_pos, end_pos].
-    Coordinates are 0-based in this function.
+      From a GenBank feature list, pull out any gene/CDS that overlaps the
+    given coordinate range.  Returns a list of simple tuples with the
+    feature’s tag info.
     """
     hits = []
     for feat in features:
@@ -40,6 +54,7 @@ def get_overlapping_genes(features, start_pos, end_pos):
 def extract_genes(overlap_hits):
     """
     Extract gene information from overlap_hits.
+    Convert raw overlap tuples into a clean list of gene names
     Returns a list of gene descriptions.
     """
     genes = []
@@ -54,10 +69,20 @@ def extract_genes(overlap_hits):
 
 def process_gbff(gbff_path, target_unitigs, pca, index_to_unitig, unitig_to_index):
     """
-    Process a FASTA (reference) file and return a list of tuples:
+    Process a FASTA file and return a list of tuples:
     (PC_number, Unitig, Reference_ID).
 
     This searches both forward and reverse complement of the reference.
+
+     Locate “important” unitigs in a FASTA reference and record which
+    principal component (PC) they belong to.
+
+    The function searches both the forward strand and its reverse
+    complement, and for each unitig also checks its own reverse
+    complement.  Every hit is reported; no attempt is made to merge
+    overlapping matches.
+
+
     """
     matches = []
     try:
@@ -97,11 +122,10 @@ def process_gbff(gbff_path, target_unitigs, pca, index_to_unitig, unitig_to_inde
 def load_panaroo_csv(filepath):
     """
     Loads the Panaroo gene_presence_absence.csv,
-    building a dict: cluster_id -> single short gene name.
+    building a dictionary: cluster_id -> single short gene name.
 
-    We assume columns: "Gene", "Non-unique Gene name", "Annotation".
     If "Non-unique Gene name" has multiple semicolon-separated entries,
-    we pick the first. If that is empty or also 'group_XXXX',
+   the first one is picked. If that is empty or also 'group_XXXX',
     we fall back to "Annotation". If that's also not helpful,
     we revert to the cluster ID itself.
     """

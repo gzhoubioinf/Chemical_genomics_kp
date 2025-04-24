@@ -2,11 +2,15 @@ import cv2
 import numpy as np
 
 def crop_img(image_path):
-    """Reads an image from disk in BGR format."""
+    """ loads an image from disk using OpenCV and returns it as a NumPy array in BGR order."""
     return cv2.imread(image_path)
 
 def extract_colony(img, row, col, num_rows=32, num_cols=48):
-    """Improved colony extraction with dynamic grid calculations"""
+    """treats the plate image as a num_rows x num_cols grid, computes the pixel boundaries of the specified 
+    cell, and crops that region; it then detects the turquoise IRIS outline, finds the largest 
+    matching contour (the colony), and shifts the crop so the colony is centred while keeping the 
+    snippet within the original image bounds, finally returning the centred cell—or None if the extraction 
+    cannot proceed."""
     # Get image dimensions
     img_height, img_width = img.shape[:2]
     

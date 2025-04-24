@@ -14,7 +14,7 @@ from collections import defaultdict
 
 def load_kp_go_tsv(tsv_path):
     """
-    Reads a local TSV file containing at least two columns:
+    Reads a TSV file downloaded from uniprot for K. Pneumoniae containing the following:
       - 'Gene Names' (e.g., the gene identifier)
       - 'Gene Ontology IDs' (semicolon-separated)
 
@@ -49,7 +49,8 @@ def load_kp_go_tsv(tsv_path):
 def run_go_enrichment(study_genes, gene2gos, obo_file, alpha=0.05):
     """
     Runs GO enrichment with GOATOOLS, using **all genes in 'gene2gos'** as the background.
-    This is effectively "all genes in the .tsv" for your background population.
+    This is effectively "all genes in the .tsv" for the background population. The study set are the genes 
+    identified by PCA/SHAP analysis. 
     """
     obodag = obo_parser.GODag(obo_file)
 

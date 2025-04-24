@@ -10,6 +10,8 @@ from app.ml_prediction import app_fasta_prediction
 import streamlit as st
 
 
+""" CHANGE THE PATH TO CONFIG FILE """
+
 def load_config(config_path='/ibex/user/hinkovn/Project_File/config/config.yaml'):
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
