@@ -183,7 +183,7 @@ Overall, the ML-based prediction module connects **genomic information** to **ph
 ### Clone the Repository
 ```bash
 git clone https://github.com/notnat9/amr_genomics_kp.git
-cd ChemGenomicsKp
+cd amr_genomics_kp
 ```
 
 ### Set Up Virtual Environment
@@ -203,7 +203,7 @@ pip install -r requirements.txt
 ```
 
 2. Download and place these files in `models/` directory:
-   - [pca_500_fitted_model_xg.joblib](https://mega.nz/file/YHdF1Z4J#ejON7zilFjXF2xR9po-8OWuvmMbomJ-BJBdHaxrplMM)
+   - [pca_transformer.joblib](https://mega.nz/file/YHdF1Z4J#ejON7zilFjXF2xR9po-8OWuvmMbomJ-BJBdHaxrplMM)
    - [unitig_to_index_xg.pkl](https://mega.nz/file/AGNi1ILZ#lkPcN6Gb0Yo3ndXlxvMQTpzIUfsu5E1SwOLGyL-k1Yc)
 
 
