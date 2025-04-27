@@ -3,7 +3,6 @@ project_file: "/ibex/user/hinkovn/Project_File"
 pca_model_file: "/ibex/user/hinkovn/Project_File/Models/pca_transformer.joblib"
 unitig_to_index_file: "/ibex/user/hinkovn/Project_File/Models/unitig_to_index_xg.pkl"
 
-# Instead of listing all model paths here, we now point to the parent folder.
 models_directory: "/ibex/user/hinkovn/Project_File/Models"
 
 files:
