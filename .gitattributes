@@ -1,2 +1,4 @@
 data/uniprotkb_573.tsv filter=lfs diff=lfs merge=lfs -text
 data/panaroo_gene_presence_absence.csv filter=lfs diff=lfs merge=lfs -text
+/ibex/user/hinkovn/Project_File/data/panaroo_gene_presence_absence.csv filter=lfs diff=lfs merge=lfs -text
+/ibex/user/hinkovn/Project_File/data/uniprotkb_573.tsv filter=lfs diff=lfs merge=lfs -text
