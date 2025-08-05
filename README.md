@@ -1,331 +1,176 @@
-# ChemGenomicsKp Application
+# ChemGenomicsKp: A Bacterial Colony Analysis Application
 
 ## Overview
 
-**ChemGenomicsKp is a **Streamlit-based application** for analyzing bacterial colonies. It provides both **colony picking** and **machine learning-based predictions** (from FASTA files) in a single, user-friendly interface.**
----
-## Background & Purpose
+**ChemGenomicsKp** is a Streamlit-based application designed for the comprehensive analysis of bacterial colonies. It integrates two powerful functionalities into a single, user-friendly interface:
 
-_Klebsiella pneumoniae_ is a bacterium of global medical importance, known for causing pneumonia, urinary tract infections, and bloodstream infections—particularly in healthcare settings.
-
-To effectively track and combat infections, it's crucial to understand both the observable behaviors of bacterial colonies and the genetic factors driving these behaviors. By combining direct observations of colony morphology (Size, Circularity, and Opacity). Colony morphology can reflect a strain’s ability to withstand antibiotics, produce biofilms, or express certain virulence factors. 
-
-with genomic analysis, researchers can form a more complete picture of how strains respond to antibiotics and other stressors.  
-
-This app not only streamlines high-throughput screening but also bridges the gap between what we see in the lab and what lies within the genetic code.
-
-## The App Features:
-
-- **Colony Picker:**  
-  Colony Picker extracts images of bacterial colonies grown on agar plates and visualizes individual colonies and displays the measurements of key morphological features—such as size, circularity, and opacity—that serve as indicators of a strain’s behavior and its response to growth conditions and/or antibiotic treatments. 
-
-   - **Extract and analyze** colonies based on strain names or grid positions.
-   - **Calculate colony metrics**: opacity, circularity, and size.
-   - **Visualize results** directly in the application.
-
-- **ML Prediction (Genomic Data Analysis):**  
-  Genomic Data Analysis analyzes genomic sequences from FASTA files to detect resistance and virulence genes and predict colony characteristics using machine learning models (XGBoost and TabNet). FASTA files are plain text files that store the DNA sequences of bacterial strains. The application processes these sequences to detect resistance and virulence genes. Lastly, this genomic information is used to predict colony characteristics—linking the genetic makeup (=genotype) of the bacteria with observable traits (=phenotype) such as colony size, shape, and opacity.
-  
-  By linking genotype and phenotype, this app identifies specific genes that correlate with observable morphological traits, providing an insights into the genetic drivers of antimicrobial resistance. The predictive modeling component enables rapid assessment of strain responses to antibiotics.
-
-   - **Upload FASTA files** to predict colony traits (opacity, circularity, size) with **pre-trained XGBoost and TabNet models**.
-   - **PCA & SHAP Analysis**: visualize principal components and SHAP values for deeper model interpretability.
-   - **GO Enrichment Analysis**: to visualize the biological significance of genes influencing the ML predictions.
----
-
-## File structure
-
-```plaintext
-ChemGenomicsKp/
-├── app/
-│   ├── __init__.py
-│   ├── main.py
-│   ├── colony_picker.py
-│   ├── ml_prediction.py
-│   └── ...
-├── utils/
-│   ├── __init__.py
-│   ├── data_loading.py
-│   ├── image_handling.py
-│   ├── ml_models.py
-│   └── gbff_processing.py
-├── config/
-│   └── config.yaml
-├── data/
-│   ├── resistance_genes_seq.fsa
-│   ├── virulence_genes_seq.fas
-│   ├── reference.gbk.gb
-│   └── ...
-├── models/
-│   ├── pca_500_fitted_model_xg.joblib  # To be downloaded from link in "Install Dependencies" section
-│   ├── unitig_to_index_xg.pkl  # To be downloaded from link in "Install Dependencies" section
-│   └── ...
-├── newfigs/
-├── iris_measurements/  # IRIS measurement files
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
----
-
-## The App
-
-When the application launches, a sidebar will appear that shows two options **ColonyPicker** and **Get Predictions from ML Model**. Below is an overview of the initial options, extraction methods, ML predictions, and the resulting outputs.
+-   **Colony Picker**: for morphological analysis of colony images.
+-   **Machine Learning Predictions**: for predicting colony characteristics from genomic data (FASTA files).
 
 ---
 
-### Initial Options
+## Background and Purpose
 
-1. **Select what you want to do**  
-   - **ColonyPicker**  
-     - Analyze colonies using plate images (32×48 grids) located in the `data/plate_images` folder.  
-     - Each condition (e.g., specific antibiotic concentration, growth medium, or stress) has **5 replicate images**.  
-     - Optionally filter colonies by **strain name** or **grid coordinates** to focus on particular isolates or locations.
+*Klebsiella pneumoniae* is a bacterium of significant global medical importance, responsible for a range of infections, particularly in healthcare settings. Understanding the interplay between a colony's observable traits (phenotype) and its genetic makeup (genotype) is crucial for combating antibiotic resistance and tracking infections.
 
+This application bridges the gap between laboratory observations and genomic data by:
 
----
-
-## ColonyPicker -  Visualizing Existing Colonies
-
-Regardless of the chosen mode, the following methods are available for pinpointing colonies:
-
-- **By Strain Name**  
-  - Choose a specific bacterial strain from a dropdown.  
-  - Narrow the search further by specifying conditions (e.g., treatments or growth environments).
-
-- **By Row and Column**  
-  - Provide the exact plate coordinates (row, column).  
-  - Useful if you already know where the colony of interest lies on the plate.
-
-### Colony Metrics
-
-For every colony extracted, the tool outputs:
-- **Images**: 5 replicate images for the selected condition and colony location.  
-
-- **Circularity**: How close the colony is to a perfect circle (0-1).  
-- **Size**: The area occupied by the colony in pixels.  
-- **Opacity**: Intensity or “darkness” of the colony, indicating density or transparency levels.
-
-All metrics are plotted for each of the **5 replicates** (one plot per condition) and then aggregated to show **overall trends**. Specifically, the application calculates:
-
-- **Mean**: Average value of the metric across replicates.  
-- **S-score**: A z-score–based metric indicating how far a replicate’s mean deviates from the dataset’s overall mean, adjusted by standard deviation and number of replicates.  
-- **Percentile**: The position of each colony’s metric within the broader dataset distribution (e.g., 90th percentile).  
-- **% Difference from Mean**: How much each value differs from the global mean (as a percentage).
-
-- **Plots of Colony Metrics**: Visualize circularity, size, and opacity across replicates, with options to compare against larger datasets or reference distributions.
-
-- **Resistance Genes and Mutations & Virulence Genes**: A list of detected genetic elements relevant to antimicrobial resistance and virulence.  
-
-
-![Colonypicker](img4github/colonypicker.png)
-
-----
-
-## ML-Based Predictions
-
-In addition to colony image analysis, the application offers **machine learning predictions** to estimate key colony traits—**opacity**, **circularity**, and **size**—directly from genomic. This feature is especially useful for users who want to predict how a bacterial strain (represented by a FASTA file) might behave under a given experimental condition. Below is an overview of how the ML module works:
-
-1. **Condition Selection**  
-   - Pick from a dropdown of available conditions (e.g., `Colistin_0.8ugml`), each associated with **pre-trained XGBoost models** specialized for that growth environment or antibiotic concentration.
-
-2. **Upload FASTA**  
-   - Begin by uploading a FASTA file containing the genomic sequences of your bacterial strain.  
-   
-3. **Convert to Unitigs**  
-   - All **31-mers** are extracted from the uploaded sequence.  
-   - These k-mers form a **presence/absence vector**, reflecting which genes are present or absent in the uploaded FASTA file.
-
-4. **Generate Predictions**  
-   - **XGBoost models** use the PCA-transformed features to predict:  
-     - **Opacity**  
-     - **Circularity** 
-     - **Size**   
-   - The results appear **immediately** in the interface.
-
-5. **View Stats & Plots**  
-   - The application compares your predicted values to a broader dataset:
-     - **Mean** of the dataset  
-     - **S-score** 
-     - **Percentile** 
-     - **% Difference**  
-   - **Distribution plots** illustrate how your predictions fit within the population.
-
-6. **PCA & SHAP Interpretation**  
-   - **SHAP values** highlight which PCA components most influence each prediction.  
-   - Users can view the **top unitigs** driving these components, and map them back to corresponding **genes** via a reference GenBank file.  
-   - This reveals **genomic regions** that are especially significant for each trait.
-
-7. **Resistance & Virulence Genes**  
-   - The application  checks for known **resistance** and **virulence** genes by comparing against local reference databases.
-
-8. **Gene Ontology (GO) Enricgment Analysis**
-   - The application performs Gene Ontology (GO) enrichment analysis using the GOATOOLS Python package to interpret the biological significance of genes influencing the ML predictions.  This feature helps users understand which biological processes or molecular functions, are significantly overrepresented in the genes associated with impactful principal components.
-
-   - *Only available for XGBoost model* 
-   - A gene-to-GO mapping file (in TSV format) was downloaded from https://www.uniprot.org/uniprotkb?query=%28taxonomy_id%3A573%29. Additionally, an OBO (Open Biomedical Ontologies) file was downloaded from https://lpalbou.github.io/docs/download-ontology/ and used to match the GO IDs for identified genes with the GO terms/descriptions. 
-
-   Both files are available in the "Data" folder
-
-
-
-Overall, the ML-based prediction module connects **genomic information** to **phenotypic traits** , making it easy to hypothesize how certain genetic features might affect colony characyeristics under specific growth conditions.
-
-
-![ml](img4github/ml.png)
+-   **Streamlining High-Throughput Screening**: Automating the analysis of colony images.
+-   **Linking Genotype to Phenotype**: Using machine learning to predict colony morphology from genomic sequences, providing insights into the genetic drivers of antimicrobial resistance.
 
 ---
 
-## How to run the app
+## Features
 
-### Installation
+### Colony Picker
 
-### Clone the Repository
+The Colony Picker module extracts and analyzes images of bacterial colonies grown on agar plates. It measures key morphological features—such as size, circularity, and opacity—which are critical indicators of a strain’s behavior and response to different growth conditions.
+
+-   **Analyze Colonies**: Extract colonies by strain name or grid coordinates.
+-   **Calculate Metrics**: Automatically compute opacity, circularity, and size.
+-   **Visualize Results**: View colony images and metric distributions directly within the app.
+
+### ML Prediction (Genomic Data Analysis)
+
+This module analyzes genomic sequences from FASTA files to predict colony characteristics using pre-trained XGBoost and TabNet models.
+
+-   **Predict Colony Traits**: Upload a FASTA file to predict opacity, circularity, and size.
+-   **Interpretability**: Visualize Principal Component Analysis (PCA) and SHAP (SHapley Additive exPlanations) values to understand model predictions.
+-   **Gene Ontology (GO) Enrichment Analysis**: Identify the biological significance of genes influencing the predictions.
+
+---
+
+## Installation
+
+### 1. Clone the Repository
+
 ```bash
-git clone https://github.com/notnat9/amr_genomics_kp.git
+git clone https://github.com/your-username/amr_genomics_kp.git
 cd amr_genomics_kp
 ```
 
-### Set Up Virtual Environment
+### 2. Set Up a Virtual Environment
+
+**Windows:**
+
 ```bash
-# Windows
 python3 -m venv venv
 venv\Scripts\activate
+```
 
-# Unix/MacOS
+**Unix/macOS:**
+
+```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Install Dependencies
+### 3. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Download and place these files in `models/` directory:
-   - [pca_transformer.joblib](https://mega.nz/file/YHdF1Z4J#ejON7zilFjXF2xR9po-8OWuvmMbomJ-BJBdHaxrplMM)
-   - [unitig_to_index_xg.pkl](https://mega.nz/file/AGNi1ILZ#lkPcN6Gb0Yo3ndXlxvMQTpzIUfsu5E1SwOLGyL-k1Yc)
+### 4. Download Model Files (Required for ML Prediction)
 
+Download the following files and place them in the `Models/` directory:
 
- Model File Information
+-   [pca_transformer.joblib](https://mega.nz/file/YHdF1Z4J#ejON7zilFjXF2xR9po-8OWuvmMbomJ-BJBdHaxrplMM)
+-   [unitig_to_index_xg.pkl](https://mega.nz/file/AGNi1ILZ#lkPcN6Gb0Yo3ndXlxvMQTpzIUfsu5E1SwOLGyL-k1Yc)
 
-
-The PCA model dimensions directly impact file size:
-
-```
-Model Dimensions:
-- n_components = 500 
-- n_features = around 2,500,000 
-
-Size Calculation:
-500 components × 2.5M features = 1.25B values -> need for a large file
-```
-->  GitHub file size limit: 100 MB
+> **Note on Model File Size:** The PCA model files are large due to the high dimensionality of the genomic data (500 components × ~2.5M features), exceeding GitHub's file size limit.
 
 ---
-### Configuration
-- Update `config/config.yaml` with correct paths
-- Update the config path in `app/main.py`
-
-## Addition of more trained models
-Possible by creating a new sub-folder in the ML Algorithm folder (e.g. Models/XGBoost/new trained condition)
 
 ## Usage
 
-
 ### Web Application
-Run the Streamlit app:
-```bash
-cd path/to/amr_genomics_kp
-```
+
+To run the Streamlit web application:
+
 ```bash
 streamlit run app/main.py
 ```
-The application will open in your default browser at `http://localhost:8501`
 
-### Command Line Interface (CLI)
+The application will be accessible at `http://localhost:8501`.
+
+### Command-Line Interface (CLI)
+
+The CLI provides a way to run the analysis pipelines without the graphical interface.
 
 #### Colony Picker
-**Using row/column coordinates:**
+
+**By Row/Column Coordinates:**
+
 ```bash
-python cli/amr_genomics_cli.py colony_picker \
-    --config config/config.yaml \
-    --row 31 \
-    --col 48 \
-    --condition "Colistin-0.8ugml"
+python cli/amr_genomics_cli.py colony_picker --config config/config.yaml --row 31 --col 48 --condition "Colistin-0.8ugml"
 ```
 
-**Using strain names (reference strain_names.txt):**
+**By Strain Name:**
+
 ```bash
-python cli/amr_genomics_cli.py colony_picker \
-    --config config/config.yaml \
-    --strain H150 \
-    --condition "Colistin-0.8ugml"
+python cli/amr_genomics_cli.py colony_picker --config config/config.yaml --strain H150 --condition "Colistin-0.8ugml"
 ```
 
 #### ML Prediction
+
 ```bash
-python cli/amr_genomics_cli.py ml_prediction \
-    --config config/config.yaml \
-    --fasta path/to/your/30.fasta \
-    --condition "Colistin_0.8ugml"
+python cli/amr_genomics_cli.py ml_prediction --config config/config.yaml --fasta /path/to/your/fasta.fasta --condition "Colistin_0.8ugml"
 ```
 
-### Important Notes
-1. Valid conditions are listed in `condition_names.txt`
-2. Strain names must match exactly those in `strain_names.txt`
-3. Condition names are case-sensitive and must match exactly
-4. Replace `path/to/your/30.fasta` with your actual FASTA file path
+> **Important Notes:**
+>
+> -   Valid conditions are listed in `cli/condition_names.txt`.
+> -   Valid strain names are listed in `cli/strain_names.txt`.
+> -   Condition names are case-sensitive and must be an exact match.
 
-----
+---
 
 ## Docker Installation (Recommended)
 
+For a hassle-free setup, a pre-configured Docker image is available.
+
 ### Prerequisites
-- Install Docker Desktop:
-  - [Windows & macOS Download](https://www.docker.com/products/docker-desktop)
-  - [Linux Installation Guide](https://docs.docker.com/engine/install/)
+
+-   [Docker Desktop](https://www.docker.com/products/docker-desktop) installed on your system.
 
 ### Run with Docker
-1. Pull the pre-built image:
--  Open the terminal in Docker (lower right corner)
-```bash
-docker pull hinkovn/app_final
-```
 
-2. Start the container: 
-```bash
-docker run -p 8501:8501 hinkovn/app_final   
-```
+1.  **Pull the Docker Image:**
 
-3. Access the application:
-```bash
-http://localhost:8501
-```
+    ```bash
+    docker pull hinkovn/app_final
+    ```
 
-### Docker Desktop GUI Instructions
-1. **Pull Image:**
-   - Open Docker Desktop
-   - Go to Images > Pull
-   - Enter `docker pull hinkovn/app_final`
+2.  **Start the Container:**
 
-2. **Run Container:**
-   - Find the image in your Images list
-   - Click "Run"
-   - Set:
-     - Port: `8501:8501`
-     - Name: (optional) e.g., `chemgenomics-app`
+    ```bash
+    docker run -p 8501:8501 hinkovn/app_final
+    ```
 
-3. **Manage Containers:**
-   - Stop: Click ●■ icon in Containers tab
-   - Remove: Click 🗑️ icon after stopping
+3.  **Access the Application:**
 
+    Open your web browser and go to `http://localhost:8501`.
 
-**NOTE:** Increase the Docker Container's memory on your docker desktop settings from the default 8GB to 16GB (Settings -> Resources)
-### Advantages
-- No manual model file downloads
-- Pre-configured environment
-- Consistent behavior across OS
-- Single-command updates
-- Isolated from system packages
+> **Note:** It is recommended to increase the Docker container's memory allocation to 16GB in Docker Desktop's settings (Settings -> Resources).
 
+### Docker Advantages
+
+-   **No Manual Downloads**: All model files are included.
+-   **Pre-configured**: The environment is ready to use out of the box.
+-   **Consistency**: Ensures the application runs the same way across different operating systems.
+-   **Isolation**: The application and its dependencies are isolated from your system packages.
+
+---
+
+## Troubleshooting
+
+### `pyarrow` Installation Issues on macOS
+
+Some users, particularly on macOS, may encounter an `ImportError` related to the `pyarrow` library. This is often due to incompatibilities with system-level libraries.
+
+If you encounter such issues, please try the following:
+
+1.  **Use a Clean Virtual Environment**: Ensure you are in a new, clean virtual environment to prevent conflicts with other installed packages.
+2.  **Use Conda**: Consider using the [Conda](https://docs.conda.io/en/latest/) package manager, as it can be more robust at managing complex binary dependencies.
+3.  **Use Docker**: The recommended and most reliable method is to use the provided Docker container, which guarantees a compatible and consistent environment.

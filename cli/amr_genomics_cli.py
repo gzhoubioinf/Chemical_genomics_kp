@@ -9,7 +9,7 @@ a terminal application that outputs results to AMR_Genomics_KP_Results.
 1) Colony Picker:
 - colony picker - with row/column coordinates
 
-python /ibex/user/hinkovn/backup_Project_File/cli/amr_genomics_cli.py     colony_picker     --config /ibex/user/hinkovn/backup_Project_File/config/config.yaml     --row 31     --col 48     --condition "Colistin-0.8ugml"
+python cli/amr_genomics_cli.py     colony_picker     --config config/config.yaml     --row 31     --col 48     --condition "Colistin-0.8ugml"
 
 - - colony picker - with strain names - refer to strain_names.txt
 
@@ -31,7 +31,7 @@ python cli/amr_genomics_cli.py colony_picker \
 
 python cli/amr_genomics_cli.py ml_prediction \
   --config config/config.yaml \
-  --fasta /ibex/user/hinkovn/test_fasta_files/30.fasta \
+  --fasta /path/to/your/fasta.fasta \
   --condition "Colistin_0.8ugml" \
   --model_type TabNet
 """
@@ -333,7 +333,7 @@ def get_color(score, max_score):
 
 def colony_picker(args, config):
     try:
-        output_dir = "/ibex/user/hinkovn/AMR_Genomics_KP_Results"
+        output_dir = "AMR_Genomics_KP_Results"
         ensure_dir(output_dir)
         strain_file_path = config["files"]["strain_file"]
         try:
@@ -371,7 +371,7 @@ def colony_picker(args, config):
         circ_data_flat = load_csv(circularity_data_file).values.flatten()
         size_data_flat = load_csv(size_data_file).values.flatten()
         opa_data_flat  = load_csv(opacity_data_file).values.flatten()
-        amr_df = pd.read_csv(amr_data_file_path, sep='\t')
+        amr_df = pd.read_csv(amr_data_file_path, sep='\t', low_memory=False)
         try:
             with open(gene_antibiotics_file, 'r') as f:
                 if gene_antibiotics_file.endswith(('.yaml', '.yml')):
@@ -480,7 +480,7 @@ def colony_picker(args, config):
                 try:
                     iris_df = pd.read_csv(
                         iris_file,
-                        delim_whitespace=True,
+                        sep='\s+',
                         comment='#',
                         skip_blank_lines=True,
                         header=0,
@@ -527,7 +527,7 @@ def colony_picker(args, config):
         fig, axes = plt.subplots(1, 3, figsize=(18, 5))
         for i, (param, data_arr, vals) in enumerate(zip(param_list, data_arrays, rep_arrays)):
             ax = axes[i]
-            sns.kdeplot(data_arr, shade=True, color='blue', label=f"{param} KDE", ax=ax)
+            sns.kdeplot(data_arr, fill=True, color='blue', label=f"{param} KDE", ax=ax)
             mean_val = np.mean(data_arr)
             std_dev = np.std(data_arr)
             ax.axvline(mean_val, color='gray', linestyle='-.', linewidth=1.5,
@@ -575,7 +575,7 @@ def ml_prediction(args, config):
     Numerical/statistics are also written to a .out file in the same directory.
     """
     try:
-        output_dir = "/ibex/user/hinkovn/AMR_Genomics_KP_Results"
+        output_dir = "AMR_Genomics_KP_Results"
         ensure_dir(output_dir)
         pca_model_file = config["pca_model_file"]
         unitig_to_index_file = config["unitig_to_index_file"]
@@ -672,7 +672,7 @@ def ml_prediction(args, config):
                 for i, (param, data, pred, mean, std, pct, diff, s_score) in enumerate(zip(
                         param_list, data_arrays, pred_values, means, std_devs, percentiles, diffs, [c_s, s_s, o_s])):
                     ax = axes[i]
-                    sns.kdeplot(data, shade=True, color='blue', label=f"{param} KDE", ax=ax)
+                    sns.kdeplot(data, fill=True, color='blue', label=f"{param} KDE", ax=ax)
                     ax.axvline(mean, color='gray', linestyle='-.', linewidth=1.5, label=f"Dataset Mean: {mean:.2f}")
                     ax.axvline(pred, color='red', linestyle='--', linewidth=1.5, label=f"Prediction: {pred:.2f}")
                     ax.set_xlabel(param, fontsize='large')
