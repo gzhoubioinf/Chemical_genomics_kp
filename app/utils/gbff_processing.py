@@ -130,6 +130,7 @@ def load_panaroo_csv(filepath):
     we revert to the cluster ID itself.
     """
     df = pd.read_csv(filepath)
+    st.write(df.head())
     map_dict = {}
 
     for i, row in df.iterrows():
