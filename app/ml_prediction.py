@@ -461,22 +461,22 @@ def app_fasta_prediction(config):
                     st.write("No enriched GO terms found with these genes (FDR-BH <= 0.05).")
                 else:
                     rows = []
-                for r in enriched_terms:
-                    rows.append({
-                        "GO Term": r.goterm.name,
-                        "GO ID": r.goterm.id,
-                        "p_uncorrected": r.p_uncorrected,
-                        "p_fdr_bh": r.p_fdr_bh,
-                        "pop_count": r.pop_count,
-                    })
-                df_go = pd.DataFrame(rows).sort_values("p_fdr_bh")
-                st.write("**GO Enrichment Results** (FDR-BH <= 0.05)")
-                st.table(df_go)
-    
-                st.write("---")
-                st.subheader("GO DAG Diagram")
-                fig_dag = plot_go_dag(enriched_terms, go_obo_file)
-                if fig_dag:
-                    st.pyplot(fig_dag)
-                else:
-                    st.write("Unable to generate DAG diagram for enriched terms.")
+                    for r in enriched_terms:
+                        rows.append({
+                            "GO Term": r.goterm.name,
+                            "GO ID": r.goterm.id,
+                            "p_uncorrected": r.p_uncorrected,
+                            "p_fdr_bh": r.p_fdr_bh,
+                            "pop_count": r.pop_count,
+                        })
+                    df_go = pd.DataFrame(rows).sort_values("p_fdr_bh")
+                    st.write("**GO Enrichment Results** (FDR-BH <= 0.05)")
+                    st.table(df_go)
+        
+                    st.write("---")
+                    st.subheader("GO DAG Diagram")
+                    fig_dag = plot_go_dag(enriched_terms, go_obo_file)
+                    if fig_dag:
+                        st.pyplot(fig_dag)
+                    else:
+                        st.write("Unable to generate DAG diagram for enriched terms.")
